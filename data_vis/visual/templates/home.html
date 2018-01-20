@@ -1,10 +1,70 @@
+<!DOCTYPE html>
+<html>
 <head>
     <title> Drug Data Visualization</title>
-{% include 'bootstrap_link.html' %}
+
+<!-- LINKS -->
+{% load static %}
+    <script src="https://code.jquery.com/jquery-3.3.0.min.js"></script>
+    <!-- Bootstrap CSS -->
+    <link type="text/css" rel="stylesheet" href='{% static 'visual/bootstrap-3.3.7-dist/css/bootstrap.min.css' %}'/> 
+    <!-- Theme CSS -->
+    <link type="text/css" rel="stylesheet" href='{% static 'visual/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css' %}'/> 
+    <!-- JS CSS -->
+    <script src={% static 'visual/bootstrap-3.3.7-dist/js/bootstrap.min.js' %}></script>
+    <script src={% static 'visual/cytoscape.js-master/dist/cytoscape.min.js' %}></script>
+
+    <style type="text/css">
+        #cy{
+            background-color: powderblue;
+            height: 80%;
+            width: 100%;
+            position: absolute;
+        }
+    </style>
 </head>
+
+
+
 <body>
     <div class = "container">
         Hello World
         <button class="btn btn-success">Ok</button>
     </div>
+
+
+    <button class="btn btn-danger">Foo</button>
+
+
+    <div id="cy">
+        <script>
+        var cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: [
+                {
+                    group: 'nodes',
+                    data: {id:'A'},
+                }
+            ],
+            style: [
+                {
+                    selector: 'node',
+                    style:{
+                        'background-color': '#AAA',
+                        'label': 'data(id)',
+                        'shape': 'star',
+                        'width': 10,
+                        'height': 10,
+                    }
+                }
+            ],
+            
+            layout: {
+                name: 'random'
+            },
+
+        });
+        </script>
+    </div>
 </body>
+</html>
