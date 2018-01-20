@@ -3,8 +3,8 @@
 <head>
     <title> Drug Data Visualization</title>
 
-<!-- LINKS -->
-{% load static %}
+    <!-- LINKS -->
+    {% load static %}
     <script src="https://code.jquery.com/jquery-3.3.0.min.js"></script>
     <!-- Bootstrap CSS -->
     <link type="text/css" rel="stylesheet" href='{% static 'visual/bootstrap-3.3.7-dist/css/bootstrap.min.css' %}'/> 
@@ -17,54 +17,67 @@
     <style type="text/css">
         #cy{
             background-color: powderblue;
-            height: 80%;
-            width: 100%;
-            position: absolute;
+            height: 500px
         }
     </style>
 </head>
 
+<!-- Functions -->
+    <script > 
+        function getSideEffectData(){
+            console.log("hello");
+        }
+    </script>
 
 
 <body>
     <div class = "container">
-        Hello World
+        <h2>Hello World</h2>
         <button class="btn btn-success">Ok</button>
+        <button class="btn btn-danger" onclick = "getSideEffectData()">Retrieve Data</button>
+
+        <hr>
+
+        <div class="row">
+            <div class="col-sm-2 col-md-2" style="background-color:#a9a9a9">
+                <h2>whatever</h2>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil iste quibusdam maiores ab hic ex, porro minus. Obcaecati cupiditate maiores esse, incidunt adipisci, odio molestias dignissimos officia mollitia molestiae consequuntur!</p>
+            </div>
+
+        <!-- <div class="col-sm-9 col-md-9">
+            <p>
+                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Neque repudiandae perspiciatis quam nesciunt sint. Nostrum explicabo quis illo voluptatem delectus debitis velit consectetur deserunt corrupti, sint molestiae repellat sequi nam.
+            </p>
+        </div> -->
+        
+        
+            <div id="cy" class="cy col-sm-10 col-md-10"></div>
+        </div>
     </div>
 
 
-    <button class="btn btn-danger">Foo</button>
+    <script >
+    var cy = cytoscape({
+        container: document.getElementById('cy'),
 
-
-    <div id="cy">
-        <script>
-        var cy = cytoscape({
-            container: document.getElementById('cy'),
-            elements: [
-                {
-                    group: 'nodes',
-                    data: {id:'A'},
+        style: [
+            {
+                selector: 'node',
+                style:{
+                    'background-color': '#AAA',
+                    'label': 'data(id)',
+                    'shape': 'star',
+                    'width': 10,
+                    'height': 10,
                 }
-            ],
-            style: [
-                {
-                    selector: 'node',
-                    style:{
-                        'background-color': '#AAA',
-                        'label': 'data(id)',
-                        'shape': 'star',
-                        'width': 10,
-                        'height': 10,
-                    }
-                }
-            ],
-            
-            layout: {
-                name: 'random'
-            },
+            }
+        ],
+        
+        layout: {
+            name: 'random'
+        },
 
-        });
-        </script>
-    </div>
+    });
+    </script>
 </body>
 </html>
