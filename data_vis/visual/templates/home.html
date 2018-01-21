@@ -30,8 +30,8 @@
         url: "{% url 'chemical_side_effects' %}" ,
         success: function(data){
             console.log("success");
+            cy.startBatch();
             for( index in data){
-              console.log(data[index]);
               cy.add([
                 {
                   group: "nodes",
@@ -52,8 +52,9 @@
                   }
                 }
               ]);
+              cy.endBatch();
               cy.layout({name:'random'}).run();
-              cy.reset();
+              
             }
           }
       });
@@ -64,49 +65,92 @@
 <body style="background-color:rgb(243, 243, 243)">
   <div class = "container">
       <h2>Drug Data Visualization</h2>
-      <button class="btn btn-success">Ok</button>
-      <button class="btn btn-danger" onclick = "getSideEffectData()">Retrieve Data</button>
+      <button class="btn btn-info" onclick = "getSideEffectData()">Retrieve Data</button>
       <button class="btn btn-default" onclick="cy.layout({name:'random', animate:true}).run()">Randomize Layout</button>
 
       <hr style="border-color: black">
 
       <div class="row">
+        <!-- Left Side Bar -->
           <div class="rounded col-sm-2 col-md-2" style="background-color:#a9a9a9; border-radius: 10px">
               <div class="col-sm-12 col-md-12">
-              <h3>whatever</h3>
+              <h3>Search</h3>
+              <hr style="border-color: black">
               <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil iste quibusdam maiores ab hic ex, porro minus. Obcaecati cupiditate maiores esse, incidunt adipisci, odio molestias dignissimos officia mollitia molestiae consequuntur!</p>
               </div>
           </div>
 
-      
+        <!-- Cytoscape Canvas -->
           <div class="cy col-sm-10 col-md-10">
-          <div id="cy" class="cy col-sm-12 col-md-12"></div>
+            <div id="cy" class="cy col-sm-12 col-md-12"></div>
           </div>
       </div>
   </div>
 
 
+  <!-- Bulk Cytoscape Code -->
   <script >
     var cy = cytoscape({
       container: document.getElementById('cy'),
-
       style: [
         {
-          selector: 'node',
+          selector: 'node.chemical',
+          style:{
+            'background-color': '#333',
+            'label': 'data(id)',
+            'shape': 'star',
+            'width': 30,
+            'height': 30,
+          },
+        },
+        {
+          selector: 'node.side_effect',
           style:{
             'background-color': '#AAA',
             'label': 'data(id)',
-            'shape': 'star',
+            'shape': 'square',
             'width': 10,
             'height': 10,
+          },
+        },
+        {
+          selector: 'edge',
+          style:{
+            width: 2
           }
         }
       ],
         
-      layout: { name: 'random' },
     }); //End of cyto initalization
     cy.panzoom();
 
+    //Cytoscape Events
+    cy.on('mouseover', 'node', function(event){
+      let target_node = event.target;
+
+      let neighbors = target_node.closedNeighborhood();
+      let node_neighbors = neighbors.filter('node');
+      node_neighbors.style({
+        'background-color' : "#D00"
+      });
+      let edge_neighbors = neighbors.filter('edge');
+      edge_neighbors.style({
+        'line-color': "#900"
+      });
+    });
+    
+    cy.on('mouseout', 'node', function(event){
+      let target_node = event.target;
+
+      let node_neighbors = target_node.closedNeighborhood();
+      node_neighbors.removeStyle();
+    });
+
+    cy.on('tap', 'node', function(event){
+      cy.center(event.target);
+
+    });
+  
   </script>
 
 </body>
