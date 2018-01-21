@@ -9,24 +9,8 @@ from django.http import JsonResponse
 class HomeView(TemplateView):
     template_name = "home.html"
 
-# def chemical_side_effects(request):
-#     data = {}
-#     csv_data = open('/Users/jack/Desktop/chem_se_SIDER.csv', 'r')
-#     total_row = 0
-#     for line in csv_data:
-#         total_row += 1
-#     total_col = len(line)
-#     csv_data.close()
+# '/Users/jack/Desktop/chem_se_SIDER.csv'
 
-#     csv_data = open('/Users/jack/Desktop/chem_se_SIDER.csv', 'r') 
-#     for row in range(total_col):
-#         line = csv_data.readline()
-#         for col in range(total_col):
-#             if(line.split(',')[col] == '1'):
-#                 data.update({row-1,col-1}) 
-
-#     csv_data.close()
-#     return JsonResponse(data)
 
 def chemical_side_effects(request):
 

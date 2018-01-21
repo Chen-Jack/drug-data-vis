@@ -53,11 +53,26 @@
                 }
               ]);
               cy.endBatch();
-              cy.layout({name:'random'}).run();
-              
             }
           }
       });
+      cy.layout({name:'random'}).run();
+    }
+
+    function searchNode(){
+      let query = document.getElementById('search_box').value;
+      let node = cy.getElementById(query);
+  
+      cy.center(node);
+
+      let pos = node.position();
+      cy.zoom({
+        level: 3,
+        position: {
+          x: pos['x'],
+          y: pos['y']
+        }
+      })
     }
   </script>
 
@@ -66,7 +81,9 @@
   <div class = "container">
       <h2>Drug Data Visualization</h2>
       <button class="btn btn-info" onclick = "getSideEffectData()">Retrieve Data</button>
-      <button class="btn btn-default" onclick="cy.layout({name:'random', animate:true}).run()">Randomize Layout</button>
+      <button class="btn btn-default" onclick="cy.layout({name:'random'}).run()">Randomize Layout</button>
+      <button class="btn btn-default" onclick="cy.layout({name:'grid'}).run()">Grid Layout</button>
+      <button onclick="console.log(cy.zoom())">Zoom Level</button>
 
       <hr style="border-color: black">
 
@@ -74,9 +91,12 @@
         <!-- Left Side Bar -->
           <div class="rounded col-sm-2 col-md-2" style="background-color:#a9a9a9; border-radius: 10px">
               <div class="col-sm-12 col-md-12">
-              <h3>Search</h3>
+              <h3>Node Search</h3>
               <hr style="border-color: black">
-              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil iste quibusdam maiores ab hic ex, porro minus. Obcaecati cupiditate maiores esse, incidunt adipisci, odio molestias dignissimos officia mollitia molestiae consequuntur!</p>
+              <input type="text" id="search_box" placeholder="Search By ID" style="width: 100px"></br>
+              <button onclick="searchNode()">Submit</button>
+              <hr style="border-color: black">
+              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil iste quibusdam maiores ab hic ex, porro minus. Obcaecati cupiditate maiores esse, incidunt adipisci!</p>
               </div>
           </div>
 
@@ -97,26 +117,26 @@
           selector: 'node.chemical',
           style:{
             'background-color': '#333',
-            'label': 'data(id)',
+            // 'label': 'data(id)',
             'shape': 'star',
-            'width': 30,
-            'height': 30,
+            'width': 5,
+            'height': 5,
           },
         },
         {
           selector: 'node.side_effect',
           style:{
             'background-color': '#AAA',
-            'label': 'data(id)',
-            'shape': 'square',
-            'width': 10,
-            'height': 10,
+            // 'label': 'data(id)',
+            'shape': 'ellipse',
+            'width': 3,
+            'height': 3,
           },
         },
         {
           selector: 'edge',
           style:{
-            width: 2
+            width: 1
           }
         }
       ],
@@ -147,7 +167,9 @@
     });
 
     cy.on('tap', 'node', function(event){
+      console.log(event.target.id());
       cy.center(event.target);
+      cy.zoom(10);
 
     });
   
