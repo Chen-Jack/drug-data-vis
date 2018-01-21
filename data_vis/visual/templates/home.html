@@ -26,16 +26,45 @@
 <!-- Functions -->
     <script > 
         function getSideEffectData(){
-            console.log("hello");
+            $.ajax({
+                url: "{% url 'chemical_side_effects' %}" ,
+                success: function(data){
+                    console.log("success");
+                    for( index in data){
+                        console.log(data[index]);
+                        cy.add([
+                            {
+                                group:"nodes",
+                                data: {id: 'c'+data[index][0]}
+                            },
+                            {
+                                group:"nodes",
+                                data: {id: 'se'+data[index][1]}
+                            },
+                            {
+                                group:"edges",
+                                data:{
+                                    id: 'c'+data[index][0]+'<->'+'se'+data[index][1],
+                                    source: 'c'+data[index][0],
+                                    target: 'se'+data[index][1],
+                                }
+                            }
+                        ]);
+                        cy.layout({name:'random'}).run();
+                        cy.reset();
+                    }
+                }
+            });
         }
     </script>
 
 
 <body style="background-color:rgb(243, 243, 243)">
     <div class = "container">
-        <h2>Hello World</h2>
+        <h2>Drug Data Visualization</h2>
         <button class="btn btn-success">Ok</button>
         <button class="btn btn-danger" onclick = "getSideEffectData()">Retrieve Data</button>
+        <button class="btn btn-default" onclick="cy.layout({name:'random', animate:true}).run()">Randomize Layout</button>
 
         <hr style="border-color: black">
 
@@ -76,7 +105,6 @@
             name: 'random'
         },
     });
-    cy.reset();
     cy.panzoom();
     </script>
 </body>
