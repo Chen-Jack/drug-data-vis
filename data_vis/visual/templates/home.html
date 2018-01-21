@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title> Drug Data Visualization</title>
+  <title> Drug Data Visualization</title>
 
-    <!-- LINKS -->
+  <!-- LINKS -->
     {% load static %}
     <script src="https://code.jquery.com/jquery-3.3.0.min.js"></script>
     {% include 'bootstrap_link.html' %}
     <script src={% static 'visual/cytoscape.js-master/dist/cytoscape.min.js' %}></script>
-    <!-- Panzoom -->
+  <!-- Panzoom -->
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
     <script src={% static 'visual/cytoscape.js-panzoom-master/cytoscape-panzoom.js' %}></script>
     <link rel="stylesheet" type="text/css" href={% static 'visual/cytoscape.js-panzoom-master/cytoscape.js-panzoom.css' %}/>
@@ -24,88 +24,90 @@
 </head>
 
 <!-- Functions -->
-    <script > 
-        function getSideEffectData(){
-            $.ajax({
-                url: "{% url 'chemical_side_effects' %}" ,
-                success: function(data){
-                    console.log("success");
-                    for( index in data){
-                        console.log(data[index]);
-                        cy.add([
-                            {
-                                group:"nodes",
-                                data: {id: 'c'+data[index][0]}
-                            },
-                            {
-                                group:"nodes",
-                                data: {id: 'se'+data[index][1]}
-                            },
-                            {
-                                group:"edges",
-                                data:{
-                                    id: 'c'+data[index][0]+'<->'+'se'+data[index][1],
-                                    source: 'c'+data[index][0],
-                                    target: 'se'+data[index][1],
-                                }
-                            }
-                        ]);
-                        cy.layout({name:'random'}).run();
-                        cy.reset();
-                    }
+  <script > 
+    function getSideEffectData(){
+      $.ajax({
+        url: "{% url 'chemical_side_effects' %}" ,
+        success: function(data){
+            console.log("success");
+            for( index in data){
+              console.log(data[index]);
+              cy.add([
+                {
+                  group: "nodes",
+                  data: {id: 'c'+ data[index][0]},
+                  classes: "chemical"
+                },
+                {
+                  group: "nodes",
+                  data: {id: 'se'+ data[index][1]},
+                  classes: "side_effect"
+                },
+                {
+                  group:"edges",
+                  data:{
+                      id: 'c'+data[index][0]+'<->'+'se'+data[index][1],
+                      source: 'c'+data[index][0],
+                      target: 'se'+data[index][1],
+                  }
                 }
-            });
-        }
-    </script>
+              ]);
+              cy.layout({name:'random'}).run();
+              cy.reset();
+            }
+          }
+      });
+    }
+  </script>
 
 
 <body style="background-color:rgb(243, 243, 243)">
-    <div class = "container">
-        <h2>Drug Data Visualization</h2>
-        <button class="btn btn-success">Ok</button>
-        <button class="btn btn-danger" onclick = "getSideEffectData()">Retrieve Data</button>
-        <button class="btn btn-default" onclick="cy.layout({name:'random', animate:true}).run()">Randomize Layout</button>
+  <div class = "container">
+      <h2>Drug Data Visualization</h2>
+      <button class="btn btn-success">Ok</button>
+      <button class="btn btn-danger" onclick = "getSideEffectData()">Retrieve Data</button>
+      <button class="btn btn-default" onclick="cy.layout({name:'random', animate:true}).run()">Randomize Layout</button>
 
-        <hr style="border-color: black">
+      <hr style="border-color: black">
 
-        <div class="row">
-            <div class="rounded col-sm-2 col-md-2" style="background-color:#a9a9a9; border-radius: 10px">
-                <div class="col-sm-12 col-md-12">
-                <h3>whatever</h3>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil iste quibusdam maiores ab hic ex, porro minus. Obcaecati cupiditate maiores esse, incidunt adipisci, odio molestias dignissimos officia mollitia molestiae consequuntur!</p>
-                </div>
-            </div>
+      <div class="row">
+          <div class="rounded col-sm-2 col-md-2" style="background-color:#a9a9a9; border-radius: 10px">
+              <div class="col-sm-12 col-md-12">
+              <h3>whatever</h3>
+              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil iste quibusdam maiores ab hic ex, porro minus. Obcaecati cupiditate maiores esse, incidunt adipisci, odio molestias dignissimos officia mollitia molestiae consequuntur!</p>
+              </div>
+          </div>
 
-        
-            <div class="cy col-sm-10 col-md-10">
-            <div id="cy" class="cy col-sm-12 col-md-12"></div>
-            </div>
-        </div>
-    </div>
+      
+          <div class="cy col-sm-10 col-md-10">
+          <div id="cy" class="cy col-sm-12 col-md-12"></div>
+          </div>
+      </div>
+  </div>
 
 
-    <script >
+  <script >
     var cy = cytoscape({
-        container: document.getElementById('cy'),
+      container: document.getElementById('cy'),
 
-        style: [
-            {
-                selector: 'node',
-                style:{
-                    'background-color': '#AAA',
-                    'label': 'data(id)',
-                    'shape': 'star',
-                    'width': 10,
-                    'height': 10,
-                }
-            }
-        ],
+      style: [
+        {
+          selector: 'node',
+          style:{
+            'background-color': '#AAA',
+            'label': 'data(id)',
+            'shape': 'star',
+            'width': 10,
+            'height': 10,
+          }
+        }
+      ],
         
-        layout: {
-            name: 'random'
-        },
-    });
+      layout: { name: 'random' },
+    }); //End of cyto initalization
     cy.panzoom();
-    </script>
+
+  </script>
+
 </body>
 </html>
