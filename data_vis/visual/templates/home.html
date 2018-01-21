@@ -6,17 +6,18 @@
     <!-- LINKS -->
     {% load static %}
     <script src="https://code.jquery.com/jquery-3.3.0.min.js"></script>
-    <!-- Bootstrap CSS -->
-    <link type="text/css" rel="stylesheet" href='{% static 'visual/bootstrap-3.3.7-dist/css/bootstrap.min.css' %}'/> 
-    <!-- Theme CSS -->
-    <link type="text/css" rel="stylesheet" href='{% static 'visual/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css' %}'/> 
-    <!-- JS CSS -->
-    <script src={% static 'visual/bootstrap-3.3.7-dist/js/bootstrap.min.js' %}></script>
+    {% include 'bootstrap_link.html' %}
     <script src={% static 'visual/cytoscape.js-master/dist/cytoscape.min.js' %}></script>
+    <!-- Panzoom -->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <script src={% static 'visual/cytoscape.js-panzoom-master/cytoscape-panzoom.js' %}></script>
+    <link rel="stylesheet" type="text/css" href={% static 'visual/cytoscape.js-panzoom-master/cytoscape.js-panzoom.css' %}/>
+
 
     <style type="text/css">
         #cy{
-            background-color: powderblue;
+            background-color: rgb(190, 228, 233);
+            border-radius: 10px;
             height: 500px
         }
     </style>
@@ -30,28 +31,26 @@
     </script>
 
 
-<body>
+<body style="background-color:rgb(243, 243, 243)">
     <div class = "container">
         <h2>Hello World</h2>
         <button class="btn btn-success">Ok</button>
         <button class="btn btn-danger" onclick = "getSideEffectData()">Retrieve Data</button>
 
-        <hr>
+        <hr style="border-color: black">
 
         <div class="row">
-            <div class="col-sm-2 col-md-2" style="background-color:#a9a9a9">
-                <h2>whatever</h2>
+            <div class="rounded col-sm-2 col-md-2" style="background-color:#a9a9a9; border-radius: 10px">
+                <div class="col-sm-12 col-md-12">
+                <h3>whatever</h3>
                 <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil iste quibusdam maiores ab hic ex, porro minus. Obcaecati cupiditate maiores esse, incidunt adipisci, odio molestias dignissimos officia mollitia molestiae consequuntur!</p>
+                </div>
             </div>
 
-        <!-- <div class="col-sm-9 col-md-9">
-            <p>
-                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Neque repudiandae perspiciatis quam nesciunt sint. Nostrum explicabo quis illo voluptatem delectus debitis velit consectetur deserunt corrupti, sint molestiae repellat sequi nam.
-            </p>
-        </div> -->
         
-        
-            <div id="cy" class="cy col-sm-10 col-md-10"></div>
+            <div class="cy col-sm-10 col-md-10">
+            <div id="cy" class="cy col-sm-12 col-md-12"></div>
+            </div>
         </div>
     </div>
 
@@ -76,8 +75,9 @@
         layout: {
             name: 'random'
         },
-
     });
+    cy.reset();
+    cy.panzoom();
     </script>
 </body>
 </html>
