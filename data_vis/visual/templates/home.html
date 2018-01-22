@@ -186,8 +186,16 @@
     cy.on('mouseout', 'node', function(event){
       let target_node = event.target;
 
-      let node_neighbors = target_node.closedNeighborhood();
-      node_neighbors.removeStyle();
+      let neighbors = target_node.closedNeighborhood()
+
+      let node_neighbors = neighbors.filter('node');
+      node_neighbors.style({
+        'background-color' : "#333"
+      });
+      let edge_neighbors = neighbors.filter('edge');
+      edge_neighbors.style({
+        'line-color': "#AAA"
+      });
     });
 
     cy.on('tap', 'node', function(event){
@@ -196,6 +204,17 @@
       cy.center(event.target);
       cy.zoom(10);
 
+    });
+
+    cy.on('zoom',function(event){
+      // console.log((cy.zoom()));
+      // console.log(cy.zoom() > 5);
+      if(cy.zoom() > 3){
+        cy.edges().style({visibility:"visible"});
+      }
+      else{
+        cy.edges().style({visibility:"hidden"});
+      }
     });
   
   </script>
