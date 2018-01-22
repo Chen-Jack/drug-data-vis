@@ -53,24 +53,44 @@
                 }
               ]);
               cy.endBatch();
+              cy.fit();
             }
           }
       });
-      cy.layout({name:'random'}).run();
     }
 
     function searchNode(){
       let query = document.getElementById('search_box').value;
       let node = cy.getElementById(query);
+      let init_x = node.position()['x'];
+      let init_y = node.position()['y'];
+      console.log("init pos: "+ init_x+","+init_y)
+
+      let node_neighbors = node.closedNeighborhood();
+      node_neighbors.style({"background-color":"#00F"});
+      node_neighbors.layout({name:"concentric"}).run();
+
+      let curr_x = node.position()['x'];
+      let curr_y = node.position()['y'];
+
+      let x_shift = init_x - curr_x;
+      console.log("init x: "+init_x);
+      console.log("final x: "+curr_x);
+      let y_shift = init_y - curr_y;
+
+      console.log("x shift: "+x_shift),
+      console.log("y shift: "+y_shift)
+      node_neighbors.shift({
+        x: x_shift,
+        y: y_shift
+      });
   
       cy.center(node);
-
-      let pos = node.position();
       cy.zoom({
-        level: 3,
+        level: 10,
         position: {
-          x: pos['x'],
-          y: pos['y']
+          x: node.position()['x'],
+          y: node.position()['y']
         }
       })
     }
@@ -110,6 +130,7 @@
 
   <!-- Bulk Cytoscape Code -->
   <script >
+    //Cytoscape Initalization
     var cy = cytoscape({
       container: document.getElementById('cy'),
       style: [
@@ -119,8 +140,8 @@
             'background-color': '#333',
             // 'label': 'data(id)',
             'shape': 'star',
-            'width': 5,
-            'height': 5,
+            'width': 2,
+            'height': 2,
           },
         },
         {
@@ -129,17 +150,20 @@
             'background-color': '#AAA',
             // 'label': 'data(id)',
             'shape': 'ellipse',
-            'width': 3,
-            'height': 3,
+            'width': 1,
+            'height': 1,
           },
         },
         {
           selector: 'edge',
           style:{
-            width: 1
+            width: 1,
+            visibility: 'hidden'
           }
         }
       ],
+
+      hideEdgesOnViewport: true
         
     }); //End of cyto initalization
     cy.panzoom();
@@ -168,6 +192,7 @@
 
     cy.on('tap', 'node', function(event){
       console.log(event.target.id());
+      console.log(event.target.position());
       cy.center(event.target);
       cy.zoom(10);
 
