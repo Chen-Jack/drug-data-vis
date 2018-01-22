@@ -25,37 +25,24 @@
 
 <!-- Functions -->
   <script > 
-    function getSideEffectData(){
+    function getChemicalData(){
       $.ajax({
-        url: "{% url 'chemical_side_effects' %}" ,
-        success: function(data){
-            console.log("success");
-            cy.startBatch();
-            for( index in data){
-              cy.add([
-                {
-                  group: "nodes",
-                  data: {id: 'c'+ data[index][0]},
-                  classes: "chemical"
-                },
-                {
-                  group: "nodes",
-                  data: {id: 'se'+ data[index][1]},
-                  classes: "side_effect"
-                },
-                {
-                  group:"edges",
-                  data:{
-                      id: 'c'+data[index][0]+'<->'+'se'+data[index][1],
-                      source: 'c'+data[index][0],
-                      target: 'se'+data[index][1],
-                  }
-                }
-              ]);
-              cy.endBatch();
-              cy.fit();
-            }
+        url: "{% url 'chemical_list' %}" ,
+        success: function(chem_list){
+          cy.startBatch();
+          for(let i in chem_list){
+            cy.add({
+              group: 'nodes',
+              data:{
+                id: chem_list[i][0],
+                InChIKey: chem_list[i][1],
+                SMILES: chem_list[i][2] 
+              },
+              classes: 'chemical'
+            });
           }
+          cy.endBatch();
+        } //End of ajax success function
       });
     }
 
@@ -80,6 +67,8 @@
 
       console.log("x shift: "+x_shift),
       console.log("y shift: "+y_shift)
+
+      cy.startBatch();
       node_neighbors.shift({
         x: x_shift,
         y: y_shift
@@ -92,7 +81,31 @@
           x: node.position()['x'],
           y: node.position()['y']
         }
+      });
+      cy.endBatch();
+    }
+
+    function get_index_elements(){
+      let list = [];
+      for (let i=0; i<500000; i+=10000){
+        list.push({
+          group: 'nodes',
+          data:{
+            id: i.toString() + "-" + (i+9999).toString(),
+            start: i
+          },
+          classes: "index"
+        })
+      }
+      list.push({
+        group: 'nodes',
+        data:{
+          id: '500000' + "+",
+          start: 500000
+        },
+        classes: "index"
       })
+      return list;
     }
   </script>
 
@@ -100,16 +113,17 @@
 <body style="background-color:rgb(243, 243, 243)">
   <div class = "container">
       <h2>Drug Data Visualization</h2>
-      <button class="btn btn-info" onclick = "getSideEffectData()">Retrieve Data</button>
-      <button class="btn btn-default" onclick="cy.layout({name:'random'}).run()">Randomize Layout</button>
-      <button class="btn btn-default" onclick="cy.layout({name:'grid'}).run()">Grid Layout</button>
+      <button class="btn btn-info" onclick = "getChemicalData()">Retrieve Data</button>
+      <button class="btn btn-default" onclick="cy.layout({name:'random', animate:true}).run()">Random Layout</button>
+      <button class="btn btn-default" onclick="cy.layout({name:'grid', animate:true}).run()">Grid Layout</button>
+      <button class="btn btn-default" onclick="cy.layout({name:'circle', animate:true}).run()">Circle</button>"
       <button onclick="console.log(cy.zoom())">Zoom Level</button>
 
       <hr style="border-color: black">
 
       <div class="row">
         <!-- Left Side Bar -->
-          <div class="rounded col-sm-2 col-md-2" style="background-color:#a9a9a9; border-radius: 10px">
+          <div class="rounded col-sm-2 col-md-2" style="background-color:#ccc; border-radius: 10px">
               <div class="col-sm-12 col-md-12">
               <h3>Node Search</h3>
               <hr style="border-color: black">
@@ -133,13 +147,13 @@
     //Cytoscape Initalization
     var cy = cytoscape({
       container: document.getElementById('cy'),
+      // elements: get_index_elements(),
       style: [
         {
           selector: 'node.chemical',
           style:{
             'background-color': '#333',
-            // 'label': 'data(id)',
-            'shape': 'star',
+            'shape': 'ellipse',
             'width': 2,
             'height': 2,
           },
@@ -147,11 +161,19 @@
         {
           selector: 'node.side_effect',
           style:{
-            'background-color': '#AAA',
-            // 'label': 'data(id)',
+            'background-color': '#333',
             'shape': 'ellipse',
             'width': 1,
-            'height': 1,
+            'height': 1
+          },
+        },
+        {
+          selector: 'node.index',
+          style:{
+            'background-color': '#333',
+            'shape': 'star',
+            'width': 5,
+            'height': 5,
           },
         },
         {
@@ -163,9 +185,12 @@
         }
       ],
 
-      hideEdgesOnViewport: true
+      hideEdgesOnViewport: true,
+      textureOnViewport: true,
+      pixelRatio: 1
         
     }); //End of cyto initalization
+    // cy.layout({name: 'circle', animate:true}).run();
     cy.panzoom();
 
     //Cytoscape Events
@@ -201,21 +226,27 @@
     cy.on('tap', 'node', function(event){
       console.log(event.target.id());
       console.log(event.target.position());
-      cy.center(event.target);
-      cy.zoom(10);
+      console.log(event.target.data());
+      // cy.center(event.target);
+      // cy.zoom(10);
 
     });
 
-    cy.on('zoom',function(event){
-      // console.log((cy.zoom()));
-      // console.log(cy.zoom() > 5);
-      if(cy.zoom() > 3){
-        cy.edges().style({visibility:"visible"});
-      }
-      else{
-        cy.edges().style({visibility:"hidden"});
-      }
+    cy.on('tap', 'node.index', function(event){
+      let index_node = event.target;
+      //Unrender other nodes
+
     });
+
+    // cy.on('zoom',function(event){
+    //   let zoom_threshold = 4;
+    //   if(cy.zoom() >= zoom_threshold){
+    //     cy.nodes('.side_effect').style({visibility:"visible"});
+    //   }
+    //   else{
+    //     cy.nodes('.side_effect').style({visibility:"hidden"});
+    //   }
+    // });
   
   </script>
 
