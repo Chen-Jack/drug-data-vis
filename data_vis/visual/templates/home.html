@@ -22,7 +22,11 @@
         #cy{
             background-color: rgb(190, 228, 233);
             border-radius: 10px;
-            height: 500px
+            height: 500px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, .25)
+        }
+        hr{
+          border-color: black;
         }
     </style>
 </head>
@@ -120,25 +124,25 @@
 <body style="background-color:rgb(243, 243, 243)">
   <div class = "container">
       <h2>Drug Data Visualization</h2>
-      <button class="btn btn-info" onclick = "getChemicalData()">Retrieve Data</button>
+      <button class="btn btn-primary" onclick = "getChemicalData()">Retrieve Data</button>
       <button class="btn btn-default" onclick="cy.layout({name:'random', animate:true}).run()">Random Layout</button>
       <button class="btn btn-default" onclick="cy.layout({name:'grid', animate:true}).run()">Grid Layout</button>
-      <button class="btn btn-default" onclick="cy.layout({name:'circle'}).run()">Circle</button>
       <button onclick="console.log(cy.zoom())">Zoom Level</button>
 
-      <hr style="border-color: black">
+      <hr>
 
       <div class="row">
         <!-- Left Side Bar -->
-          <div class="rounded col-sm-2 col-md-2" style="background-color:#ccc; border-radius: 10px">
+          <div class="rounded col-sm-2 col-md-2" style="background-color:#ccc; border-radius: 10px;box-shadow: 0px 2px 5px rgba(0, 0, 0, .25)">
               <div class="col-sm-12 col-md-12">
               <h3>Node Search</h3>
-              <hr style="border-color: black">
+              <hr>
               <input type="text" id="search_box" placeholder="Search..." style="width: 95%"></br>
               <button onclick="searchNode()">Submit</button>
-              <hr style="border-color: black">
-              <button class="btn btn-default" onclick="cy.reset()">Camera</button>
-              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil iste quibusdam maiores ab hic ex, porro minus. Obcaecati cupiditate maiores esse, incidunt adipisci!</p>
+              <hr>
+              <button class="btn btn-info btn-block" onclick="cy.reset()">Reset View</button>
+              <hr>
+              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil iste quibusdam maiores ab hic ex, porro minus!</p>
               </div>
           </div>
 
@@ -227,34 +231,34 @@
     });
 
     //Cytoscape Events
-    // cy.on('mouseover', 'node', function(event){
-    //   let target_node = event.target;
+    cy.on('mouseover', 'node', function(event){
+      let target_node = event.target;
 
-    //   let neighbors = target_node.closedNeighborhood();
-    //   let node_neighbors = neighbors.filter('node');
-    //   node_neighbors.style({
-    //     'background-color' : "#D00"
-    //   });
-    //   let edge_neighbors = neighbors.filter('edge');
-    //   edge_neighbors.style({
-    //     'line-color': "#900"
-    //   });
-    // });
+      let neighbors = target_node.closedNeighborhood();
+      let node_neighbors = neighbors.filter('node');
+      node_neighbors.style({
+        'background-color' : "#D00"
+      });
+      let edge_neighbors = neighbors.filter('edge');
+      edge_neighbors.style({
+        'line-color': "#900"
+      });
+    });
     
-    // cy.on('mouseout', 'node', function(event){
-    //   let target_node = event.target;
+    cy.on('mouseout', 'node', function(event){
+      let target_node = event.target;
 
-    //   let neighbors = target_node.closedNeighborhood()
+      let neighbors = target_node.closedNeighborhood()
 
-    //   let node_neighbors = neighbors.filter('node');
-    //   node_neighbors.style({
-    //     'background-color' : "#333"
-    //   });
-    //   let edge_neighbors = neighbors.filter('edge');
-    //   edge_neighbors.style({
-    //     'line-color': "#AAA"
-    //   });
-    // });
+      let node_neighbors = neighbors.filter('node');
+      node_neighbors.style({
+        'background-color' : "#333"
+      });
+      let edge_neighbors = neighbors.filter('edge');
+      edge_neighbors.style({
+        'line-color': "#AAA"
+      });
+    });
 
     cy.on('tap', 'node', function(event){
       console.log(event.target.id());
