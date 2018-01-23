@@ -12,6 +12,10 @@
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
     <script src={% static 'visual/cytoscape.js-panzoom-master/cytoscape-panzoom.js' %}></script>
     <link rel="stylesheet" type="text/css" href={% static 'visual/cytoscape.js-panzoom-master/cytoscape.js-panzoom.css' %}/>
+  <!-- QTIP -->
+  <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.css">
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.js"></script>
+  <script src={% static 'visual/cytoscape.js-qtip-master/cytoscape-qtip.js' %}></script>
 
 
     <style type="text/css">
@@ -235,6 +239,10 @@
       // cy.center(event.target);
       // cy.zoom(10);
 
+    });
+
+    cy.on('mouseover', 'node', function(event){
+      event.target.qtip({content:'api'});
     });
 
 
