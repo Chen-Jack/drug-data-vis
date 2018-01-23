@@ -85,6 +85,7 @@
         }
       });
       cy.endBatch();
+      
     }
 
     function get_index_elements(){
@@ -118,7 +119,7 @@
       <button class="btn btn-info" onclick = "getChemicalData()">Retrieve Data</button>
       <button class="btn btn-default" onclick="cy.layout({name:'random', animate:true}).run()">Random Layout</button>
       <button class="btn btn-default" onclick="cy.layout({name:'grid', animate:true}).run()">Grid Layout</button>
-      <button class="btn btn-default" onclick="cy.layout({name:'circle', animate:true}).run()">Circle</button>
+      <button class="btn btn-default" onclick="cy.layout({name:'circle'}).run()">Circle</button>
       <button onclick="console.log(cy.zoom())">Zoom Level</button>
 
       <hr style="border-color: black">
@@ -195,7 +196,6 @@
       pixelRatio: 1
         
     }); //End of cyto initalization
-    // cy.layout({name: 'circle', animate:true}).run();
     cy.panzoom();
 
     //Cytoscape Events
@@ -237,11 +237,6 @@
 
     });
 
-    cy.on('tap', 'node.index', function(event){
-      let index_node = event.target;
-      //Unrender other nodes
-
-    });
 
     // cy.on('zoom',function(event){
     //   let zoom_threshold = 4;
