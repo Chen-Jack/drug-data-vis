@@ -29,6 +29,7 @@
       $.ajax({
         url: "{% url 'chemical_list' %}" ,
         success: function(chem_list){
+          console.log("Successfully retrieved API CHEM LIST")
           cy.startBatch();
           for(let i in chem_list){
             cy.add({
@@ -42,6 +43,7 @@
             });
           }
           cy.endBatch();
+          cy.layout({name:'random'}).run();
         } //End of ajax success function
       });
     }
@@ -76,7 +78,7 @@
   
       cy.center(node);
       cy.zoom({
-        level: 10,
+        level: 5.5,
         position: {
           x: node.position()['x'],
           y: node.position()['y']
@@ -116,7 +118,7 @@
       <button class="btn btn-info" onclick = "getChemicalData()">Retrieve Data</button>
       <button class="btn btn-default" onclick="cy.layout({name:'random', animate:true}).run()">Random Layout</button>
       <button class="btn btn-default" onclick="cy.layout({name:'grid', animate:true}).run()">Grid Layout</button>
-      <button class="btn btn-default" onclick="cy.layout({name:'circle', animate:true}).run()">Circle</button>"
+      <button class="btn btn-default" onclick="cy.layout({name:'circle', animate:true}).run()">Circle</button>
       <button onclick="console.log(cy.zoom())">Zoom Level</button>
 
       <hr style="border-color: black">
@@ -127,9 +129,10 @@
               <div class="col-sm-12 col-md-12">
               <h3>Node Search</h3>
               <hr style="border-color: black">
-              <input type="text" id="search_box" placeholder="Search By ID" style="width: 100px"></br>
+              <input type="text" id="search_box" placeholder="Search..." style="width: 95%"></br>
               <button onclick="searchNode()">Submit</button>
               <hr style="border-color: black">
+              <button class="btn btn-default" onclick="cy.reset()">Camera</button>
               <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil iste quibusdam maiores ab hic ex, porro minus. Obcaecati cupiditate maiores esse, incidunt adipisci!</p>
               </div>
           </div>
@@ -184,7 +187,9 @@
           }
         }
       ],
-
+      
+      minZoom: 0.8,
+      maxZoom: 20,
       hideEdgesOnViewport: true,
       textureOnViewport: true,
       pixelRatio: 1
