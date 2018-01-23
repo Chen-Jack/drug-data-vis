@@ -155,7 +155,6 @@
     //Cytoscape Initalization
     var cy = cytoscape({
       container: document.getElementById('cy'),
-      // elements: get_index_elements(),
       style: [
         {
           selector: 'node.chemical',
@@ -200,49 +199,71 @@
       pixelRatio: 1
         
     }); //End of cyto initalization
+
     cy.panzoom();
+    cy.on('mouseover', 'node' , function(event){
+      event.target.qtip({
+          content: {
+            title: function(){return("CID: "+ this.id())},
+            text: function(){
+              let str_rep = "";
+              str_rep += "InChIKey: "+ this.data("InChIKey")+ "</br>";
+              str_rep += "SMILES: "+ this.data('SMILES');
+              return str_rep
+            },
+            button: 'true'
+          },
+          position:{
+            at: 'top-right',
+            my: 'bottom-center'
+          },
+          hide:{
+            event: 'true',
+          },
+          style:{
+            classes: 'qtip-tipsy qtip-shadow qtip-rounded '
+          }
+        });
+    });
 
     //Cytoscape Events
-    cy.on('mouseover', 'node', function(event){
-      let target_node = event.target;
+    // cy.on('mouseover', 'node', function(event){
+    //   let target_node = event.target;
 
-      let neighbors = target_node.closedNeighborhood();
-      let node_neighbors = neighbors.filter('node');
-      node_neighbors.style({
-        'background-color' : "#D00"
-      });
-      let edge_neighbors = neighbors.filter('edge');
-      edge_neighbors.style({
-        'line-color': "#900"
-      });
-    });
+    //   let neighbors = target_node.closedNeighborhood();
+    //   let node_neighbors = neighbors.filter('node');
+    //   node_neighbors.style({
+    //     'background-color' : "#D00"
+    //   });
+    //   let edge_neighbors = neighbors.filter('edge');
+    //   edge_neighbors.style({
+    //     'line-color': "#900"
+    //   });
+    // });
     
-    cy.on('mouseout', 'node', function(event){
-      let target_node = event.target;
+    // cy.on('mouseout', 'node', function(event){
+    //   let target_node = event.target;
 
-      let neighbors = target_node.closedNeighborhood()
+    //   let neighbors = target_node.closedNeighborhood()
 
-      let node_neighbors = neighbors.filter('node');
-      node_neighbors.style({
-        'background-color' : "#333"
-      });
-      let edge_neighbors = neighbors.filter('edge');
-      edge_neighbors.style({
-        'line-color': "#AAA"
-      });
-    });
+    //   let node_neighbors = neighbors.filter('node');
+    //   node_neighbors.style({
+    //     'background-color' : "#333"
+    //   });
+    //   let edge_neighbors = neighbors.filter('edge');
+    //   edge_neighbors.style({
+    //     'line-color': "#AAA"
+    //   });
+    // });
 
     cy.on('tap', 'node', function(event){
       console.log(event.target.id());
-      console.log(event.target.position());
-      console.log(event.target.data());
+
+      // console.log(event.target.position());
+      // console.log(event.target.data());
       // cy.center(event.target);
       // cy.zoom(10);
 
-    });
-
-    cy.on('mouseover', 'node', function(event){
-      event.target.qtip({content:'api'});
     });
 
 
