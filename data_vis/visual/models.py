@@ -5,32 +5,10 @@ from django.db import models
 
 # Create your models here.
 
-class Chemical(models.Model):
-    CID = models.IntegerField()
-    InChIKey = models.CharField(max_length = 27)
-    SMILES = models.CharField(max_length = 1000)
-
-    def __str__ (self):
-        return 'CID: ' + str(self.CID)
-
-    @staticmethod
-    def fillDataBase(): #Please only use this within the shell and only once
-        if(len(Chemical.objects.all()) != 0): #The database is already filled with something
-            print("The database is already filled.")
-            return 
-        
-        CHEM_data = open('./data/SIDER_chemicals_stereo.tsv', 'r')
-        CHEM_data.readline() #Skipping the first line
-        for entry in CHEM_data:
-            parsed_entry = entry.split('\t')
-            Chemical.objects.create(CID = parsed_entry[1], InChIKey = parsed_entry[2], SMILES=parsed_entry[3])
-        CHEM_data.close()
-
 class SideEffect(models.Model):
     name = models.CharField(max_length = 50)
     UMLS_CUI = models.CharField(max_length = 8)
-    caused_by = models.ManyToManyField(Chemical, blank=True)
-
+    
     def __str__ (self):
         return self.name
 
@@ -47,8 +25,49 @@ class SideEffect(models.Model):
             SideEffect.objects.create(name = parsed_entry[2], UMLS_CUI = parsed_entry[1])
         SE_data.close()
 
-def initRelation():
+class Gene(models.Model):
+    name = models.CharField(max_length = 100)
+    HGNC = models.IntegerField()
+    UniProt = models.CharField(max_length = 6)
+    Chromosome = models.CharField(max_length = 20)
+ 
+    def __str__(self):
+        return self.name
 
+class Chemical(models.Model):
+    CID = models.IntegerField()
+    InChIKey = models.CharField(max_length = 27)
+    SMILES = models.CharField(max_length = 1000)
+
+    side_effects = models.ManyToManyField(SideEffect, blank=True)
+    total_side_effects = models.IntegerField(null=True, blank=True)
+
+    affected_genes = models.ManyToManyField(Gene, blank = True)
+    total_affected_genes = models.IntegerField(null=True, blank=True)
+
+    def __str__ (self):
+        return 'CID: ' + str(self.CID)
+
+    @staticmethod
+    def fillDataBase(): #Please only use this within the shell and only once
+        if(len(Chemical.objects.all()) != 0): #The database is already filled with something
+            print("The database is already filled.")
+            return 
+        
+        CHEM_data = open('./data/SIDER_chemicals_stereo.tsv', 'r')
+        CHEM_data.readline() #Skipping the first line
+        for entry in CHEM_data:
+            parsed_entry = entry.split('\t')
+            Chemical.objects.create(CID = parsed_entry[1], InChIKey = parsed_entry[2], SMILES=parsed_entry[3])
+        CHEM_data.close()
+        
+        
+
+
+def initRelations():
+    '''
+    Establishes the Many-To-Many connection between Chemicals and Side Effects"
+    '''
     #Just getting the dimensions of your matrix
     csv_data = open('/Users/jack/Desktop/chem_se_SIDER.csv', 'r')
     total_row = 0
@@ -57,26 +76,23 @@ def initRelation():
     total_col = len(line.split(','))
     csv_data.close()
     
-    print(total_row) #There are 1549 chemicals
-    print(total_col) #There are 4251 side effects
+    print(total_row) #There should be 1549 chemicals
+    print(total_col) #There should be 4251 side effects
 
-    #Creating coordinates from csv file
+    #Adding ManyToMany relations
     se_qs = SideEffect.objects.all()
     chem_qs = Chemical.objects.all()
 
     csv_data = open('/Users/jack/Desktop/chem_se_SIDER.csv', 'r') 
-    csv_data.readline() #Skip the first line
-    for row in range(total_row-1): #I already read the first line above
-        line = csv_data.readline()
+    for row in range(total_row):
         print(row)
-        parsed_line = line.rstrip('\n').split(',')
+        parsed_line = csv_data.readline().rstrip('\n').split(',')
         for col in range(total_col):
-            if(col !=0 and parsed_line[col] == '1'): 
-                se_qs[col-1].caused_by.add(chem_qs[row]) #-1 from col since we don't want to read the first col
-          
+            if(parsed_line[col] == '1'): 
+                se_qs[col].caused_by.add(chem_qs[row])
     csv_data.close()
 
-def clearRelation():
+def clearRelations():
     se_qs = SideEffect.objects.all()
     for se in se_qs:
         se.caused_by.clear()

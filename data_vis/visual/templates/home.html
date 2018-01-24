@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title> Drug Data Visualization</title>
+  <title> Data Visualization</title>
 
   <!-- LINKS -->
     {% load static %}
@@ -97,11 +97,11 @@
 
 <body style="background-color:rgb(243, 243, 243)">
   <div class = "container">
-      <h2>Drug Data Visualization</h2>
+      <h2> [Drug/Side-Effect/Gene]  Visualization</h2>
       <button class="btn btn-primary" onclick = "getChemicalData()">Retrieve Data</button>
       <button class="btn btn-default" onclick="cy.layout({name:'random', animate:true}).run()">Random Layout</button>
       <button class="btn btn-default" onclick="cy.layout({name:'grid', animate:true}).run()">Grid Layout</button>
-      <button onclick="console.log(cy.zoom())">Zoom Level</button>
+      <!-- <button onclick="console.log(cy.zoom())">Zoom Level</button> -->
 
       <hr>
 
@@ -111,7 +111,7 @@
               <div class="col-sm-12 col-md-12">
               <h3>Node Search</h3>
               <hr>
-              <input type="text" id="search_box" placeholder="Search..." value="119" style="width: 95%"></br>
+              <input type="text" id="search_box" placeholder="Search..." value="Search..." style="width: 95%"></br>
               <button onclick="searchNode()">Submit</button>
               <hr>
               <button class="btn btn-info btn-block" onclick="cy.reset()">Reset View</button>
@@ -156,6 +156,10 @@
           selector: 'edge',
           style:{
             width: 0.5,
+            'target-arrow-color': '#900',
+            'target-arrow-shape': 'triangle',
+            'arrow-scale': 0.5,
+            'curve-style': 'bezier'
           }
         }
       ],
@@ -248,7 +252,7 @@
             });
 
             cy.endBatch();
-            $(neighbors.layout({name:'concentric', animate:true, concentric: function(node){
+            $(neighbors.layout({name:'concentric', animate:true ,concentric: function(node){
               if(event.target == node){
                 return 100;
               }
