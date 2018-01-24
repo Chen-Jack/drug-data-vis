@@ -38,7 +38,7 @@
         url: "{% url 'chemical_list' %}" ,
         success: function(chem_list){
           console.log("Successfully retrieved API CHEM LIST")
-          cy.startBatch();
+          // cy.startBatch();
           for(let i in chem_list){
             cy.add({
               group: 'nodes',
@@ -49,8 +49,9 @@
               },
               classes: 'chemical'
             });
-          }
-          cy.endBatch();
+          };
+          // cy.endBatch();
+          
           cy.layout({name:'random'}).run();
         } //End of ajax success function
       });
@@ -137,7 +138,7 @@
               <div class="col-sm-12 col-md-12">
               <h3>Node Search</h3>
               <hr>
-              <input type="text" id="search_box" placeholder="Search..." style="width: 95%"></br>
+              <input type="text" id="search_box" placeholder="Search..." value="119" style="width: 95%"></br>
               <button onclick="searchNode()">Submit</button>
               <hr>
               <button class="btn btn-info btn-block" onclick="cy.reset()">Reset View</button>
@@ -204,31 +205,61 @@
         
     }); //End of cyto initalization
 
-    cy.panzoom();
-    cy.on('mouseover', 'node' , function(event){
+    cy.on('add', 'node', function(event){
       event.target.qtip({
-          content: {
-            title: function(){return("CID: "+ this.id())},
-            text: function(){
-              let str_rep = "";
-              str_rep += "InChIKey: "+ this.data("InChIKey")+ "</br>";
-              str_rep += "SMILES: "+ this.data('SMILES');
-              return str_rep
-            },
-            button: 'true'
+        content: {
+          title: function(){return("CID: "+ this.id())},
+          text: function(){
+            let str_rep = "";
+            str_rep += "InChIKey: "+ this.data("InChIKey")+ "</br>";
+            str_rep += "SMILES: "+ this.data('SMILES');
+            return str_rep
           },
-          position:{
-            at: 'top-right',
-            my: 'bottom-center'
-          },
-          hide:{
-            event: 'true',
-          },
-          style:{
-            classes: 'qtip-tipsy qtip-shadow qtip-rounded '
-          }
-        });
+        },
+        position:{
+          at: 'top-right',
+          my: 'bottom-center'
+        },
+        show:{
+          event: 'mouseover'
+        },
+        hide:{
+          event: 'mouseout', //unfocus
+        },
+        style:{
+          classes: 'qtip-tipsy qtip-shadow qtip-rounded '
+        }
+      });
     });
+
+    cy.panzoom();
+    // cy.on('mouseover', 'node' , function(event){
+    //   event.target.qtip({
+    //       content: {
+    //         title: function(){return("CID: "+ this.id())},
+    //         text: function(){
+    //           let str_rep = "";
+    //           str_rep += "InChIKey: "+ this.data("InChIKey")+ "</br>";
+    //           str_rep += "SMILES: "+ this.data('SMILES');
+    //           return str_rep
+    //         },
+    //         button: 'true'
+    //       },
+    //       show:{
+    //         event:"mouseenter"
+    //       },
+    //       position:{
+    //         at: 'top-right',
+    //         my: 'bottom-center'
+    //       },
+    //       hide:{
+    //         event: 'true',
+    //       },
+    //       style:{
+    //         classes: 'qtip-tipsy qtip-shadow qtip-rounded '
+    //       }
+    //     });
+    // });
 
     //Cytoscape Events
     cy.on('mouseover', 'node', function(event){
@@ -270,17 +301,6 @@
 
     });
 
-
-    // cy.on('zoom',function(event){
-    //   let zoom_threshold = 4;
-    //   if(cy.zoom() >= zoom_threshold){
-    //     cy.nodes('.side_effect').style({visibility:"visible"});
-    //   }
-    //   else{
-    //     cy.nodes('.side_effect').style({visibility:"hidden"});
-    //   }
-    // });
-  
   </script>
 
 </body>
