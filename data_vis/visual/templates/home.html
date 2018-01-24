@@ -38,7 +38,7 @@
         url: "{% url 'chemical_list' %}" ,
         success: function(chem_list){
           console.log("Successfully retrieved API CHEM LIST")
-          // cy.startBatch();
+          cy.startBatch();
           for(let i in chem_list){
             cy.add({
               group: 'nodes',
@@ -50,7 +50,7 @@
               classes: 'chemical'
             });
           };
-          // cy.endBatch();
+          cy.endBatch();
           
           cy.layout({name:'random'}).run();
         } //End of ajax success function
@@ -95,29 +95,6 @@
       });
       cy.endBatch();
       
-    }
-
-    function get_index_elements(){
-      let list = [];
-      for (let i=0; i<500000; i+=10000){
-        list.push({
-          group: 'nodes',
-          data:{
-            id: i.toString() + "-" + (i+9999).toString(),
-            start: i
-          },
-          classes: "index"
-        })
-      }
-      list.push({
-        group: 'nodes',
-        data:{
-          id: '500000' + "+",
-          start: 500000
-        },
-        classes: "index"
-      })
-      return list;
     }
   </script>
 
@@ -166,33 +143,23 @@
           style:{
             'background-color': '#333',
             'shape': 'ellipse',
-            'width': 2,
-            'height': 2,
+            'width': 3,
+            'height': 3,
           },
         },
         {
           selector: 'node.side_effect',
           style:{
             'background-color': '#333',
-            'shape': 'ellipse',
+            'shape': 'triangle',
             'width': 1,
             'height': 1
-          },
-        },
-        {
-          selector: 'node.index',
-          style:{
-            'background-color': '#333',
-            'shape': 'star',
-            'width': 5,
-            'height': 5,
           },
         },
         {
           selector: 'edge',
           style:{
             width: 1,
-            visibility: 'hidden'
           }
         }
       ],
@@ -201,67 +168,14 @@
       maxZoom: 20,
       hideEdgesOnViewport: true,
       textureOnViewport: true,
-      pixelRatio: 1
         
     }); //End of cyto initalization
 
-    cy.on('add', 'node', function(event){
-      event.target.qtip({
-        content: {
-          title: function(){return("CID: "+ this.id())},
-          text: function(){
-            let str_rep = "";
-            str_rep += "InChIKey: "+ this.data("InChIKey")+ "</br>";
-            str_rep += "SMILES: "+ this.data('SMILES');
-            return str_rep
-          },
-        },
-        position:{
-          at: 'top-right',
-          my: 'bottom-center'
-        },
-        show:{
-          event: 'mouseover'
-        },
-        hide:{
-          event: 'mouseout', //unfocus
-        },
-        style:{
-          classes: 'qtip-tipsy qtip-shadow qtip-rounded '
-        }
-      });
-    });
-
+    //Cytoscape Extensions--------
     cy.panzoom();
-    // cy.on('mouseover', 'node' , function(event){
-    //   event.target.qtip({
-    //       content: {
-    //         title: function(){return("CID: "+ this.id())},
-    //         text: function(){
-    //           let str_rep = "";
-    //           str_rep += "InChIKey: "+ this.data("InChIKey")+ "</br>";
-    //           str_rep += "SMILES: "+ this.data('SMILES');
-    //           return str_rep
-    //         },
-    //         button: 'true'
-    //       },
-    //       show:{
-    //         event:"mouseenter"
-    //       },
-    //       position:{
-    //         at: 'top-right',
-    //         my: 'bottom-center'
-    //       },
-    //       hide:{
-    //         event: 'true',
-    //       },
-    //       style:{
-    //         classes: 'qtip-tipsy qtip-shadow qtip-rounded '
-    //       }
-    //     });
-    // });
+  
 
-    //Cytoscape Events
+    //Cytoscape Events-------
     cy.on('mouseover', 'node', function(event){
       let target_node = event.target;
 
@@ -292,13 +206,80 @@
     });
 
     cy.on('tap', 'node', function(event){
-      console.log(event.target.id());
+      console.log("CID: "+ event.target.id());
+      let cid = event.target.id().toString();
+      $.ajax({
+        url: 'api/side_effects/'+cid, //I need a way to call this without hardcoding it.
+        success: function(data){
+          for(i in data){
+            cy.add([
+              {
+                group:'nodes',
+                data: {id: data[i][1], name: data[i][0] },
+                classes: 'side_effect'
+              },
+              {
+                group: 'edges',
+                data: {id: cid + data[i][1] , target: data[i][1], source: event.target.id()}
+              }
+            ]);
+          }
+        }
+      }); //End of AJAX call
+      let central_node = cy.getElementById(event.target.id())
+      let local_group = central_node.closedNeighborhood();
+      local_group.layout({name:'concentric'}).run();
+    });
 
-      // console.log(event.target.position());
-      // console.log(event.target.data());
-      // cy.center(event.target);
-      // cy.zoom(10);
+    cy.on('add', 'node.chemical', function(event){
+      event.target.qtip({
+        content: {
+          title: function(){return("CID: "+ this.id())},
+          text: function(){
+            let str_rep = "";
+            str_rep += "InChIKey: "+ this.data("InChIKey")+ "</br>";
+            str_rep += "SMILES: "+ this.data('SMILES');
+            return str_rep
+          },
+        },
+        position:{
+          at: 'top-right',
+          my: 'bottom-center'
+        },
+        show:{
+          event: 'mouseover'
+        },
+        hide:{
+          event: 'mouseout', //unfocus
+        },
+        style:{
+          classes: 'qtip-tipsy qtip-shadow qtip-rounded '
+        }
+      });
+    });
 
+    cy.on('add', 'node.side_effect', function(event){
+      event.target.qtip({
+        content: {
+          title: function(){return("CID: "+ this.id())},
+          text: function(){
+            return 'Effect: [' + this.data('name') + ']'
+          },
+        },
+        position:{
+          at: 'top-right',
+          my: 'bottom-center'
+        },
+        show:{
+          event: 'mouseover'
+        },
+        hide:{
+          event: 'mouseout', //unfocus
+        },
+        style:{
+          classes: 'qtip-tipsy qtip-shadow qtip-rounded '
+        }
+      });
     });
 
   </script>

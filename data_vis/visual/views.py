@@ -25,13 +25,13 @@ def get_chemical_list(request, *args, **kwargs):
 
 def get_related_side_effects(request, *args, **kwargs):
     CID_query = int(kwargs['CID']) 
-    chem_obj = Chemical.objects.get(id = CID_query)
+    chem_obj = Chemical.objects.get(CID = CID_query)
     se_list = chem_obj.sideeffect_set.all()
 
     data={}
     counter = 0
     for se in se_list:
-        data.update({str(counter):(se.name, se.UMLS_CUI, str(se.caused_by))})
+        data.update({str(counter):(se.name, se.UMLS_CUI)})
         counter += 1
 
     return JsonResponse(data)
