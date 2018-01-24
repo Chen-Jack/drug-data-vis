@@ -17,8 +17,9 @@ def get_chemical_list(request, *args, **kwargs):
     qs = {}
     counter = 0
     for chemical in chemical_list:
+        total_effects = len(chemical.sideeffect_set.all())
         qs.update({
-            str(counter): (chemical.CID, chemical.InChIKey, chemical.SMILES)
+            str(counter): (chemical.CID, chemical.InChIKey, total_effects)
         })
         counter += 1
     return JsonResponse(qs)

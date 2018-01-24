@@ -45,7 +45,7 @@
               data:{
                 id: chem_list[i][0],
                 InChIKey: chem_list[i][1],
-                SMILES: chem_list[i][2] 
+                total_effects: chem_list[i][2] 
               },
               classes: 'chemical'
             });
@@ -151,15 +151,15 @@
           selector: 'node.side_effect',
           style:{
             'background-color': '#333',
-            'shape': 'triangle',
-            'width': 1,
-            'height': 1
+            'shape': 'diamond',
+            'width': 2,
+            'height': 2
           },
         },
         {
           selector: 'edge',
           style:{
-            width: 1,
+            width: 0.5,
           }
         }
       ],
@@ -176,61 +176,88 @@
   
 
     //Cytoscape Events-------
-    cy.on('mouseover', 'node', function(event){
-      let target_node = event.target;
+    // cy.on('mouseover', 'node', function(event){
+    //   let target_node = event.target;
 
-      let neighbors = target_node.closedNeighborhood();
-      let node_neighbors = neighbors.filter('node');
-      node_neighbors.style({
-        'background-color' : "#D00"
-      });
-      let edge_neighbors = neighbors.filter('edge');
-      edge_neighbors.style({
-        'line-color': "#900"
-      });
-    });
+    //   let neighbors = target_node.closedNeighborhood();
+    //   console.log(neighbors.length)
+    //   let node_neighbors = neighbors.filter('node');
+    //   node_neighbors.style({
+    //     'background-color' : "#D00"
+    //   });
+    //   let edge_neighbors = neighbors.filter('edge');
+    //   edge_neighbors.style({
+    //     'line-color': "#900"
+    //   });
+    // });
     
-    cy.on('mouseout', 'node', function(event){
-      let target_node = event.target;
+    // cy.on('mouseout', 'node', function(event){
+    //   let target_node = event.target;
 
-      let neighbors = target_node.closedNeighborhood()
+    //   let neighbors = target_node.closedNeighborhood()
 
-      let node_neighbors = neighbors.filter('node');
-      node_neighbors.style({
-        'background-color' : "#333"
-      });
-      let edge_neighbors = neighbors.filter('edge');
-      edge_neighbors.style({
-        'line-color': "#AAA"
-      });
-    });
+    //   let node_neighbors = neighbors.filter('node');
+    //   node_neighbors.style({
+    //     'background-color' : "#333"
+    //   });
+    //   let edge_neighbors = neighbors.filter('edge');
+    //   edge_neighbors.style({
+    //     'line-color': "#AAA"
+    //   });
+    // });
 
     cy.on('tap', 'node', function(event){
       console.log("CID: "+ event.target.id());
-      let cid = event.target.id().toString();
-      $.ajax({
-        url: 'api/side_effects/'+cid, //I need a way to call this without hardcoding it.
-        success: function(data){
-          for(i in data){
-            cy.add([
-              {
-                group:'nodes',
-                data: {id: data[i][1], name: data[i][0] },
-                classes: 'side_effect'
-              },
-              {
-                group: 'edges',
-                data: {id: cid + data[i][1] , target: data[i][1], source: event.target.id()}
-              }
-            ]);
+      if(event.target.hasClass('expanded')){
+        let neighbors = event.target.openNeighborhood().filter('node')
+        cy.remove(neighbors) //We only remove nodes, that way edges can stay if another node is expanded
+        event.target.style({
+          'shape':'ellipse',
+          'background-color': "#333"
+        })
+        event.target.removeClass('expanded')
+      }
+      else{
+        let cid = event.target.id().toString();
+        $.ajax({
+          url: 'api/side_effects/'+cid, //I need a way to call this without hardcoding it.
+          success: function(data){
+            cy.startBatch();
+            for(i in data){
+              cy.add([
+                {
+                  group:'nodes',
+                  data: {id: data[i][1], name: data[i][0] },
+                  classes: 'side_effect'
+                },
+                {
+                  group: 'edges',
+                  data: {id: cid + data[i][1] , target: data[i][1], source: event.target.id()}
+                }
+              ]);
+            };
+            let neighbors = event.target.openNeighborhood();
+            let node_neighbors = neighbors.filter('node');
+            node_neighbors.style({
+              'background-color' : "#D00"
+            });
+            let edge_neighbors = neighbors.filter('edge');
+            edge_neighbors.style({
+              'line-color': "#900"
+            });
+            event.target.style({
+              'shape':'star'
+            });
+
+            cy.endBatch();
+            $(neighbors.layout({name:'concentric', animate:true}).run());
+            event.target.addClass('expanded')
           }
-        }
-      }); //End of AJAX call
-      let central_node = cy.getElementById(event.target.id())
-      let local_group = central_node.closedNeighborhood();
-      local_group.layout({name:'concentric'}).run();
+        }); //End of AJAX call
+      } //End of else statement
     });
 
+    //QTIP events
     cy.on('add', 'node.chemical', function(event){
       event.target.qtip({
         content: {
@@ -238,7 +265,7 @@
           text: function(){
             let str_rep = "";
             str_rep += "InChIKey: "+ this.data("InChIKey")+ "</br>";
-            str_rep += "SMILES: "+ this.data('SMILES');
+            str_rep += "Total Side Effects: "+ this.data('total_effects');
             return str_rep
           },
         },
@@ -250,7 +277,7 @@
           event: 'mouseover'
         },
         hide:{
-          event: 'mouseout', //unfocus
+          event: 'mouseout unfocus', //unfocus
         },
         style:{
           classes: 'qtip-tipsy qtip-shadow qtip-rounded '
@@ -274,7 +301,7 @@
           event: 'mouseover'
         },
         hide:{
-          event: 'mouseout', //unfocus
+          event: 'mouseout unfocus', //unfocus
         },
         style:{
           classes: 'qtip-tipsy qtip-shadow qtip-rounded '
