@@ -60,9 +60,9 @@
     function searchNode(){
       let query = document.getElementById('search_box').value;
       let node = cy.getElementById(query);
+      node.style({'z-index': 5});
       let init_x = node.position()['x'];
       let init_y = node.position()['y'];
-      console.log("init pos: "+ init_x+","+init_y)
 
       let node_neighbors = node.closedNeighborhood();
       node_neighbors.style({"background-color":"#00F"});
@@ -72,12 +72,8 @@
       let curr_y = node.position()['y'];
 
       let x_shift = init_x - curr_x;
-      console.log("init x: "+init_x);
-      console.log("final x: "+curr_x);
       let y_shift = init_y - curr_y;
 
-      console.log("x shift: "+x_shift),
-      console.log("y shift: "+y_shift)
 
       cy.startBatch();
       node_neighbors.shift({
@@ -206,19 +202,21 @@
     //   });
     // });
 
-    cy.on('tap', 'node', function(event){
+    cy.on('tap', 'node.chemical', function(event){
       console.log("CID: "+ event.target.id());
       if(event.target.hasClass('expanded')){
-        let neighbors = event.target.openNeighborhood().filter('node')
-        cy.remove(neighbors) //We only remove nodes, that way edges can stay if another node is expanded
+        let neighbors = event.target.openNeighborhood()
+        cy.remove(neighbors) //We only remove edges, that way edges can stay if another node is expanded
         event.target.style({
           'shape':'ellipse',
-          'background-color': "#333"
+          'background-color': "#333",
+          'z-index': 0
         })
         event.target.removeClass('expanded')
       }
       else{
         let cid = event.target.id().toString();
+        event.target.addClass('expanded')
         $.ajax({
           url: 'api/side_effects/'+cid, //I need a way to call this without hardcoding it.
           success: function(data){
@@ -228,30 +226,36 @@
                 {
                   group:'nodes',
                   data: {id: data[i][1], name: data[i][0] },
-                  classes: 'side_effect'
+                  classes: 'side_effect',
+                  style:{
+                    'z-index': 5,
+                    'background-color' : "#D00"
+                  }
                 },
                 {
                   group: 'edges',
-                  data: {id: cid + data[i][1] , target: data[i][1], source: event.target.id()}
+                  data: {id: cid + data[i][1] , target: data[i][1], source: event.target.id()},
+                  style:{
+                    'z-index': 5,
+                    'line-color': "#900"
+                  }
                 }
               ]);
             };
-            let neighbors = event.target.openNeighborhood();
-            let node_neighbors = neighbors.filter('node');
-            node_neighbors.style({
-              'background-color' : "#D00"
-            });
-            let edge_neighbors = neighbors.filter('edge');
-            edge_neighbors.style({
-              'line-color': "#900"
-            });
+            let neighbors = event.target.closedNeighborhood();
             event.target.style({
               'shape':'star'
             });
 
             cy.endBatch();
-            $(neighbors.layout({name:'concentric', animate:true}).run());
-            event.target.addClass('expanded')
+            $(neighbors.layout({name:'concentric', animate:true, concentric: function(node){
+              if(event.target == node){
+                return 100;
+              }
+              else{
+                return 1;
+              }
+            }}).run());
           }
         }); //End of AJAX call
       } //End of else statement
