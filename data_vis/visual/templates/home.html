@@ -252,79 +252,11 @@
 
     //Cytoscape Events-------
 
-    cy.on('tap', 'node', function(event){
-      console.log(event.target.closedNeighborhood().length);
-      console.log(cy.elements().length)
-    });
-
-    // cy.on('tap', 'node.chemical', function(event){
-    //   console.log("CID: "+ event.target.id());
-    //   if(event.target.hasClass('expanded')){
-    //     let neighbors = event.target.openNeighborhood()
-    //     cy.remove(neighbors) //We only remove edges, that way edges can stay if another node is expanded
-    //     event.target.style({
-    //       'shape':'ellipse',
-    //       'background-color': "#333",
-    //       'z-index': 0
-    //     })
-    //     event.target.removeClass('expanded')
-    //   }
-    //   else{
-    //     let cid = event.target.id().toString();
-    //     event.target.addClass('expanded')
-    //     $.ajax({
-    //       url: 'api/side_effects/'+cid, //I need a way to call this without hardcoding it.
-    //       success: function(data){
-    //         cy.startBatch();
-    //         for(i in data){
-    //           cy.add([
-    //             {
-    //               group:'nodes',
-    //               data: {id: data[i][1], name: data[i][0] },
-    //               classes: 'side_effect',
-    //               style:{
-    //                 'z-index': 5,
-    //                 'background-color' : "#D00"
-    //               }
-    //             },
-    //             {
-    //               group: 'edges',
-    //               data: {id: cid + data[i][1] , target: data[i][1], source: event.target.id()},
-    //               style:{
-    //                 'z-index': 5,
-    //                 'line-color': "#900"
-    //               }
-    //             }
-    //           ]);
-    //         };
-    //         let neighbors = event.target.closedNeighborhood();
-    //         event.target.style({
-    //           'shape':'star'
-    //         });
-
-    //         cy.endBatch();
-    //         $(neighbors.layout({name:'concentric', animate:true ,
-    //           concentric: function(node){
-    //             if(event.target == node){
-    //               return 100;
-    //             }
-    //             else{
-    //               let rand_val = parseInt(Math.random()*10);;
-    //               console.log(rand_val);
-    //               return rand_val;
-    //             }
-    //           },
-    //         }).run());
-    //       }
-    //     }); //End of AJAX call
-    //   } //End of else statement
-    // });
-
     //QTIP events
     cy.on('add', 'node.chemical', function(event){
       event.target.qtip({
         content: {
-          title: function(){return("CID: "+ this.id())},
+          title: function(){return("[Drug]</br>CID: "+ this.id())},
           text: function(){
             let str_rep = "";
             str_rep += "InChIKey: "+ this.data("InChIKey")+ "</br>";
@@ -352,7 +284,7 @@
     cy.on('add', 'node.side_effect', function(event){
       event.target.qtip({
         content: {
-          title: function(){return("UMLS CUI: "+ this.id())},
+          title: function(){return("[Side Effect]</br>UMLS CUI: "+ this.id())},
           text: function(){
             return 'Effect: [' + this.data('name') + ']'
           },
@@ -376,7 +308,7 @@
     cy.on('add', 'node.gene', function(event){
       event.target.qtip({
         content: {
-          title: function(){return("Symbol: " + this.data('symbol'))},
+          title: function(){return("[Gene]</br>Symbol: " + this.data('symbol'))},
           text: function(){
             return  "HGNC: "+ this.id() + "</br>Chromosome: " + this.data('chromosome');
           },
