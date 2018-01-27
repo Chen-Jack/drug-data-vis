@@ -52,8 +52,8 @@
               data:{
                 id: chem_list[i][0], //CID
                 InChIKey: chem_list[i][1],
-                total_effects: chem_list[i][2],
-                total_genes: chem_list[i][3],
+                total_se: chem_list[i][2],
+                total_gene: chem_list[i][3],
               },
               classes: 'chemical'
             });
@@ -65,15 +65,13 @@
       });
     }
 
-    function drugSearch(){
-      /*
-      When searching by CID, cytoscape will attempt to find the chemical and surround it
-      with all of it's associated side effects and genes.
-      */
+    function searchBox(){
       let node = cy.getElementById(document.getElementById('search_box').value);
-      let cid = node.id()
+      chemicalQuery(node);
+    }
 
-      if(cid == undefined){
+    function chemicalQuery(node){
+      if(node.id() == undefined){
         console.log("Cannot find node.");
         return;
       }
@@ -85,16 +83,15 @@
       // let init_x = node.position()['x'];
       // let init_y = node.position()['y'];
 
-
       //Adding all the associated side effects
       $.ajax({
-        url: 'api/side_effects/'+node.id(), //I need a way to call this without hardcoding it.
+        url: 'api/associated_side_effects/chemical/'+node.id(),
         success: function(data){
           for(i in data){
             cy.add([
               {
                 group:'nodes',
-                data: {id: data[i][1], name: data[i][0] }, //data:{id: cui, name: side-effect-name}
+                data: {id: data[i][1], name: data[i][0], total_chem: data[i][2], total_gene: data[i][3] }, //data:{id: cui, name: side-effect-name}
                 classes: 'side_effect',
               },
               {
@@ -131,7 +128,7 @@
 
       //Adding all the associated genes
       $.ajax({
-        url: 'api/genes/'+node.id(),
+        url: 'api/associated_genes/chemical/'+node.id(),
         success: function(data){
           for(i in data){
             cy.add([
@@ -147,11 +144,119 @@
             ]);
             let gene_neighborhood = node.union(cy.nodes('.gene'));
             gene_neighborhood.layout({name:'concentric'}).run()
-        } //End of success function
-      }
+        } 
+      }//End of success function
     }); //End of gene ajax call
-  } //End of searchNode function
-      
+  } //End of chemicalQuery function
+
+  function geneQuery(node){
+    if(node.id() == undefined){
+      console.log("Cannot find node.");
+      return;
+    }
+    console.log("Searching for "+ node.id());
+
+    cy.remove(node.absoluteComplement()) //Delete all other nodes if they exist
+    
+    //Adding all the associated side effects
+    $.ajax({
+      url: 'api/associated_side_effects/gene/'+node.id(),
+      success: function(data){
+        for(i in data){
+          cy.add([
+            {
+              group:'nodes',
+              data: {id: data[i][1], name: data[i][0], total_chem: data[i][3], total_se: data[i][2] }, //data:{id: cui, name: side-effect-name}
+              classes: 'side_effect',
+            },
+            {
+              group: 'edges',
+              data: {id: node.id() +'->'+ data[i][1] , target: data[i][1], source: node.id()}
+            }
+          ]);
+        };//End of for loop
+        node.closedNeighborhood().layout({name:'concentric', animate:true}).run();
+
+      } //End of success function
+    }); //End of side_effect ajax call
+
+    //Adding all the associated chemicals
+    $.ajax({
+      url: 'api/associated_chemicals/gene/'+node.id(),
+      success: function(data){
+        for(i in data){
+          cy.add([
+            {
+              group: 'nodes',
+              data:{id: data[i][0], InChIKey: data[i][1], total_se: data[i][2], total_gene: data[i][3]},
+              classes: 'chemical'
+            },
+            {
+              group: 'edges',
+              data: {id: node.id() + '->' + data[i][0], target: data[i][0], source: node.id()}
+            }
+          ]);
+          let gene_neighborhood = node.union(cy.nodes('.chemical'));
+          gene_neighborhood.layout({name:'concentric'}).run()
+        } 
+      } //End of success function
+    }); //End of gene ajax call
+  }   
+
+  function sideEffectQuery(node){
+    if(node.id() == undefined){
+      console.log("Cannot find node.");
+      return;
+    }
+    console.log("Searching for "+ node.id());
+
+    cy.remove(node.absoluteComplement()) //Delete all other nodes if they exist
+    
+    //Adding all the associated side effects
+    $.ajax({
+      url: 'api/associated_genes/side_effect/'+node.id(),
+      success: function(data){
+        for(i in data){
+          cy.add([
+            {
+              group:'nodes',
+              data: {id: data[i][0], symbol: data[i][1], chromosome: data[i][3], total_se: data[i][4], total_chem: data[i][5]}, 
+              classes: 'gene',
+            },
+            {
+              group: 'edges',
+              data: {id: node.id() +'->'+ data[i][0] , target: data[i][0], source: node.id()},
+            }
+          ]);
+        };//End of for loop
+        node.closedNeighborhood().layout({name:'concentric', animate:true}).run();
+
+      } //End of success function
+    }); //End of side_effect ajax call
+
+    //Adding all the associated chemicals
+    $.ajax({
+      url: 'api/associated_chemicals/side_effect/'+node.id(),
+      success: function(data){
+        for(i in data){
+          console.log(i);
+          cy.add([
+            {
+              group: 'nodes',
+              data:{id: data[i][0], InChIKey: data[i][1], total_se: data[i][2], total_gene: data[i][3]},
+              classes: 'chemical'
+            },
+            // {
+            //   group: 'edges',
+            //   data: {id: node.id() + '->' + data[i][0], target: data[i][0], source: node.id()}
+            // }
+          ]);
+        }
+        let gene_neighborhood = node.union(cy.nodes('.chemical'));
+        gene_neighborhood.layout({name:'concentric'}).run() 
+      } //End of success function
+    }); //End of ajax
+  }   
   </script>
 
 
@@ -172,7 +277,7 @@
               <h3>Node Search</h3>
               <hr>
               <input type="text" id="search_box" placeholder="Search..." style="width: 95%"></br>
-              <button onclick="drugSearch()">Submit</button>
+              <button onclick="searchBox()">Submit</button>
               <hr>
               <h5>Filter</h5> 
               <input id="cid_checkbox" type="checkbox"> CID</br>
@@ -252,6 +357,22 @@
 
     //Cytoscape Events-------
 
+    cy.on('tap', 'node', function(event){
+      if(event.target.hasClass('gene')){
+        geneQuery(event.target);
+      }
+      else if(event.target.hasClass('chemical')){
+        chemicalQuery(event.target);
+      }
+      else if(event.target.hasClass('side_effect')){
+        sideEffectQuery(event.target);
+      }
+      else{
+        console.log("The node you pressed does not have the main 3 classes [gene, chem, sideeffect")
+      }
+
+    });
+
     //QTIP events
     cy.on('add', 'node.chemical', function(event){
       event.target.qtip({
@@ -260,8 +381,8 @@
           text: function(){
             let str_rep = "";
             str_rep += "InChIKey: "+ this.data("InChIKey")+ "</br>";
-            str_rep += "Total Side Effects: "+ this.data('total_effects') + "</br>"
-            str_rep += "Total Assoc. Genes: "+ this.data('total_genes');
+            str_rep += "Total Side Effects: "+ this.data('total_se') + "</br>"
+            str_rep += "Total Assoc. Genes: "+ this.data('total_gene');
             return str_rep
           },
         },
@@ -286,7 +407,10 @@
         content: {
           title: function(){return("[Side Effect]</br>UMLS CUI: "+ this.id())},
           text: function(){
-            return 'Effect: [' + this.data('name') + ']'
+            let str_rep = 'Effect: [' + this.data('name') + ']</br>';
+            str_rep += "Total Assoc. Drugs: "+ this.data('total_chem') + "</br>"
+            str_rep += "Total Assoc. Genes: "+ this.data('total_gene');
+            return str_rep;
           },
         },
         position:{
@@ -297,7 +421,7 @@
           event: 'mouseover'
         },
         hide:{
-          event: 'mouseout unfocus', //unfocus
+          event: 'mouseout unfocus', 
         },
         style:{
           classes: 'qtip-tipsy qtip-shadow qtip-rounded '
@@ -310,7 +434,10 @@
         content: {
           title: function(){return("[Gene]</br>Symbol: " + this.data('symbol'))},
           text: function(){
-            return  "HGNC: "+ this.id() + "</br>Chromosome: " + this.data('chromosome');
+            let str_rep = "HGNC: "+ this.id() + "</br>Chromosome: " + this.data('chromosome') +"</br>";
+            str_rep += "Total Assoc. Drugs: "+ this.data('total_chem') + "</br>"
+            str_rep += "Total Assoc. Side Effects: "+ this.data('total_se');
+            return str_rep;
           },
         },
         position:{
@@ -321,7 +448,7 @@
           event: 'mouseover'
         },
         hide:{
-          event: 'mouseout unfocus', //unfocus
+          event: 'mouseout unfocus', 
         },
         style:{
           classes: 'qtip-tipsy qtip-shadow qtip-rounded '
