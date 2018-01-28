@@ -142,11 +142,11 @@
                 data: {id: node.id() +'->'+ data[i][0] , target: data[i][0], source: node.id()},
               }
             ]);
-            let gene_neighborhood = node.union(cy.nodes('.gene'));
-            gene_neighborhood.layout({name:'concentric'}).run()
-        } 
-      }//End of success function
-    }); //End of gene ajax call
+          } 
+          let gene_neighborhood = node.union(cy.nodes('.gene'));
+          gene_neighborhood.layout({name:'concentric'}).run()
+        }//End of success function
+      }); //End of gene ajax call
   } //End of chemicalQuery function
 
   function geneQuery(node){
@@ -166,7 +166,7 @@
           cy.add([
             {
               group:'nodes',
-              data: {id: data[i][1], name: data[i][0], total_chem: data[i][3], total_se: data[i][2] }, //data:{id: cui, name: side-effect-name}
+              data: {id: data[i][1], name: data[i][0], total_chem: data[i][2], total_gene: data[i][3] }, //data:{id: cui, name: side-effect-name}
               classes: 'side_effect',
             },
             {
@@ -196,9 +196,9 @@
               data: {id: node.id() + '->' + data[i][0], target: data[i][0], source: node.id()}
             }
           ]);
-          let gene_neighborhood = node.union(cy.nodes('.chemical'));
-          gene_neighborhood.layout({name:'concentric'}).run()
         } 
+        let gene_neighborhood = node.union(cy.nodes('.chemical'));
+        gene_neighborhood.layout({name:'concentric'}).run()
       } //End of success function
     }); //End of gene ajax call
   }   
@@ -239,7 +239,6 @@
       url: 'api/associated_chemicals/side_effect/'+node.id(),
       success: function(data){
         for(i in data){
-          console.log(i);
           cy.add([
             {
               group: 'nodes',
@@ -358,6 +357,8 @@
     //Cytoscape Events-------
 
     cy.on('tap', 'node', function(event){
+      event.target.style({events: 'no'});
+
       if(event.target.hasClass('gene')){
         geneQuery(event.target);
       }
