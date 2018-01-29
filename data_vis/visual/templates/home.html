@@ -303,7 +303,7 @@
           return a;
         },
         levelWidth: function(nodes){
-          return 1;
+          return 2;
         }
       }).run()">Concentric Layout</button>
     </br></br>
@@ -317,6 +317,40 @@
               <hr>
               <input type="text" id="search_box" placeholder="Search..." style="width: 75%"><button onclick="searchBox()"><span class="glyphicon glyphicon-search"></span></button>
               <hr>
+              <div class="panel panel-primary" style="border-radius: 0px; height: 150px">
+                  <div class="panel-heading" style="border-radius: 0px">Associated Side Effects</div>
+                  <div class="panel-body fixed-panel" style="max-height: 100px; min-height: 100px; overflow:hidden; overflow-y: scroll">
+                    <a href>A</a></br>
+                    <a href>B</a></br>
+                    <a href>C</a></br>
+                    <a href>D</a></br>
+                    <a href>E</a></br>
+                  </div>
+                </div>                  
+              <hr>
+              <div class="panel panel-primary" style="border-radius: 0px; height: 150px">
+                <div class="panel-heading" style="border-radius: 0px">Associated Genes</div>
+                  <div class="panel-body fixed-panel" style="max-height: 100px; min-height: 100px; overflow:hidden; overflow-y: scroll">
+                    <a href>A</a></br>
+                    <a href>B</a></br>
+                    <a href>C</a></br>
+                    <a href>D</a></br>
+                    <a href>E</a></br>
+                  </div>
+              </div>  
+              <hr>
+              <div class="panel panel-primary" style="border-radius: 0px; height: 150px">
+                  <div class="panel-heading" style="border-radius: 0px">Associated Drugs</div>
+                    <div class="panel-body fixed-panel" style="max-height: 100px; min-height: 100px; overflow:hidden; overflow-y: scroll">
+                      <a href>A</a></br>
+                      <a href>B</a></br>
+                      <a href>C</a></br>
+                      <a href>D</a></br>
+                      <a href>E</a></br>
+                    </div>
+                </div>  
+                <hr>
+              
               <h5>Filter</h5> 
               <input id="cid_checkbox" type="checkbox"> CID</br>
               <input id="gene_checkbox" type="checkbox"> Gene Symbol</br>
