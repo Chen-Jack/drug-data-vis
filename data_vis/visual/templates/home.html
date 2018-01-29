@@ -21,9 +21,9 @@
     <style type="text/css">
         #cy{
             background-color: rgb(190, 228, 233);
-            border-radius: 10px;
+            /* border-radius: 10px; */
             height: 500px;
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, .25)
+            /* box-shadow: 0px 2px 5px rgba(0, 0, 0, .25) */
         }
         hr{
           border-color: black;
@@ -226,10 +226,26 @@
             {
               group: 'edges',
               data: {id: node.id() +'->'+ data[i][0] , target: data[i][0], source: node.id()},
+              style: {'visibility' : 'hidden'}
             }
           ]);
         };//End of for loop
-        node.closedNeighborhood().layout({name:'concentric', animate:true}).run();
+        let max_degree = node.closedNeighborhood(".gene").length;
+        console.log(max_degree);
+        node.closedNeighborhood().layout({name:'concentric', animate:true, 
+          concentric: function(ele){
+            if(ele == node){
+              console.log("yea")
+              return 100;
+            }
+            else{
+              return 1;
+            }
+          },
+          levelWidth: function(nodes){
+            return parseInt(1/Math.log(max_degree)*10);
+          }
+        }).run();
 
       } //End of success function
     }); //End of side_effect ajax call
@@ -245,14 +261,30 @@
               data:{id: data[i][0], InChIKey: data[i][1], total_se: data[i][2], total_gene: data[i][3]},
               classes: 'chemical'
             },
-            // {
-            //   group: 'edges',
-            //   data: {id: node.id() + '->' + data[i][0], target: data[i][0], source: node.id()}
-            // }
+            {
+              group: 'edges',
+              data: {id: node.id() + '->' + data[i][0], target: data[i][0], source: node.id()}
+            }
           ]);
         }
         let gene_neighborhood = node.union(cy.nodes('.chemical'));
-        gene_neighborhood.layout({name:'concentric'}).run() 
+        let max_degree = gene_neighborhood.length;
+        console.log(max_degree);
+        gene_neighborhood.layout({name:'concentric', 
+          concentric: function(ele){
+            if(ele == node){
+              console.log("yea")
+              return 100;
+            }
+            else{
+              let random_val = parseInt(Math.random()*1000) % (parseInt(max_degree/10));
+              return random_val;
+            }
+          },
+          levelWidth: function(nodes){
+            return parseInt(1/Math.log(max_degree)*10);
+          }
+        }).run() 
       } //End of success function
     }); //End of ajax
   }   
@@ -260,23 +292,30 @@
 
 
 <body style="background-color:rgb(243, 243, 243)">
-  <div class = "container">
-      <h2> [Drug/Side-Effect/Gene]  Visualization</h2>
+    <div class="container-fluid" style="z-index: 30; position: relative; box-shadow: 0px 2px 15px rgba(0, 0, 0, .5); background-color: #DDD">
+      <h2 style="display: inline-block"> [Drug/Side-Effect/Gene]  Visualization</h2>   
       <button class="btn btn-primary" onclick = "getChemicalData()">Retrieve Data</button>
       <button class="btn btn-default" onclick="cy.layout({name:'random', animate:true}).run()">Random Layout</button>
       <button class="btn btn-default" onclick="cy.layout({name:'grid', animate:true}).run()">Grid Layout</button>
+      <button class="btn btn-default" onclick="cy.layout({name:'concentric', animate: true, 
+      concentric: function(ele){
+          let a = parseInt(Math.random()* 10);
+          return a;
+        },
+        levelWidth: function(nodes){
+          return 1;
+        }
+      }).run()">Concentric Layout</button>
+    </br></br>
       <!-- <button onclick="console.log(cy.zoom())">Zoom Level</button> -->
+    </div>
 
-      <hr>
-
+    <div class = "container-fluid">
       <div class="row">
         <!-- Left Side Bar -->
-          <div class="rounded col-sm-2 col-md-2" style="background-color:#ccc; border-radius: 10px;box-shadow: 0px 2px 5px rgba(0, 0, 0, .25)">
-              <div class="col-sm-12 col-md-12">
-              <h3>Node Search</h3>
+          <div class="rounded col-sm-3 col-md-3" style="z-index: 10; position: relative;background-color:#EEE;box-shadow: 0px 2px 5px rgba(0, 0, 0, .25)">
               <hr>
-              <input type="text" id="search_box" placeholder="Search..." style="width: 95%"></br>
-              <button onclick="searchBox()">Submit</button>
+              <input type="text" id="search_box" placeholder="Search..." style="width: 75%"><button onclick="searchBox()"><span class="glyphicon glyphicon-search"></span></button>
               <hr>
               <h5>Filter</h5> 
               <input id="cid_checkbox" type="checkbox"> CID</br>
@@ -285,14 +324,11 @@
               <hr>
               <button class="btn btn-info btn-block" style="border-radius: 0" onclick="cy.reset()">Reset View</button>
               <hr>
-              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil iste quibusdam maiores ab hic ex, porro minus!</p>
-              </div>
           </div>
 
         <!-- Cytoscape Canvas -->
-          <div class="cy col-sm-10 col-md-10">
-            <div id="cy" class="cy col-sm-12 col-md-12"></div>
-          </div>
+            <div id="cy" class="cy col-sm-9 col-md-9"></div>
+
       </div>
   </div>
 
@@ -308,8 +344,8 @@
           style:{
             'background-color': '#00A',
             'shape': 'ellipse',
-            'width': 3,
-            'height': 3,
+            'width': 5,
+            'height': 5,
           },
         },
         {
@@ -317,8 +353,8 @@
           style:{
             'background-color': '#0A0',
             'shape': 'diamond',
-            'width': 2,
-            'height': 2
+            'width': 5,
+            'height': 5
           },
         },
         {
@@ -326,29 +362,34 @@
           style:{
             'background-color': '#A00',
             'shape': 'triangle',
-            'width': 2,
-            'height': 2,
+            'width': 5,
+            'height': 5,
           }
         },
         {
           selector: 'edge',
           style:{
-            width: 0.5,
+            width: 0.25,
             'line-color' : 'black',
             'target-arrow-color': 'black',
             'target-arrow-shape': 'triangle',
-            'arrow-scale': 0.5,
-            'curve-style': 'bezier'
+            'arrow-scale': 0.25,
+            'curve-style': 'bezier',
+            'line-style' : 'dashed',
           }
         }
       ],
-      
-      minZoom: 0.8,
-      maxZoom: 20,
+      layout:{
+        name: 'null'
+      },
+      // minZoom: 0.8,
+      // maxZoom: 20,
       hideEdgesOnViewport: true,
       textureOnViewport: true,
         
     }); //End of cyto initalization
+
+    getChemicalData();
 
     //Cytoscape Extensions--------
     cy.panzoom();
@@ -357,7 +398,6 @@
     //Cytoscape Events-------
 
     cy.on('tap', 'node', function(event){
-      event.target.style({events: 'no'});
 
       if(event.target.hasClass('gene')){
         geneQuery(event.target);
@@ -374,7 +414,7 @@
 
     });
 
-    //QTIP events
+  //QTIP events
     cy.on('add', 'node.chemical', function(event){
       event.target.qtip({
         content: {

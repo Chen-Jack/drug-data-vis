@@ -75,7 +75,6 @@ def get_related_chemicals(request, *args, **kwargs):
         chem_qs = gene_obj.chemical_set.all()
 
     elif(kwargs['type'] == "side_effect"):
-        print("yes, all chemicsals related to side effect chosen")
         SE_Query = kwargs['ID']
         se_obj = SideEffect.objects.get(UMLS_CUI = SE_Query)
         chem_qs = se_obj.chemical_set.all()
