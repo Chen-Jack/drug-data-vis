@@ -47,6 +47,8 @@
           console.log("Successfully retrieved API CHEM LIST")
           cy.startBatch();
           for(let i in chem_list){
+
+            //Adding to cytoscape core
             cy.add({
               group: 'nodes',
               data:{
@@ -79,19 +81,26 @@
 
       cy.remove(node.absoluteComplement()) //Delete all other nodes if they exist
 
-      // //Save inital position of the node (cause layout.run() will cause it to shift)
-      // let init_x = node.position()['x'];
-      // let init_y = node.position()['y'];
+      //Clearing the sidebar
+      document.getElementById('chem_list').innerHTML = '';
+      document.getElementById('se_list').innerHTML = '';
+      document.getElementById('gene_list').innerHTML = '';
 
       //Adding all the associated side effects
       $.ajax({
         url: 'api/associated_side_effects/chemical/'+node.id(),
         success: function(data){
           for(i in data){
+            //Add to side bar
+            let list_node = document.createElement("LI");
+            list_node.appendChild(document.createTextNode(data[i][0]));
+            document.getElementById('se_list').appendChild(list_node);
+
+            //Add to cytoscape core
             cy.add([
               {
                 group:'nodes',
-                data: {id: data[i][1], name: data[i][0], total_chem: data[i][2], total_gene: data[i][3] }, //data:{id: cui, name: side-effect-name}
+                data: {id: data[i][1], name: data[i][0], total_chem: data[i][2], total_gene: data[i][3] },
                 classes: 'side_effect',
               },
               {
@@ -102,26 +111,8 @@
           };//End of for loop
           node.closedNeighborhood().layout({name:'concentric', animate:true}).run();
 
-        //Shifting the the neighborhood to the original position of node
-        // let curr_x = node.position()['x'];
-        // let curr_y = node.position()['y'];
-
-        // let x_shift = init_x - curr_x;
-        // let y_shift = init_y - curr_y;
-
-        // node_neighbors.shift({
-        //   x: x_shift,
-        //   y: y_shift
-        // });
 
         cy.fit(node.closedNeighborhood());
-        // cy.zoom({
-        //   level: 5.5,
-        //   position: {
-        //     x: node.position()['x'],
-        //     y: node.position()['y']
-        //   }
-        // });
 
         } //End of success function
       }); //End of side_effect ajax call
@@ -131,6 +122,12 @@
         url: 'api/associated_genes/chemical/'+node.id(),
         success: function(data){
           for(i in data){
+            //Add to side bar
+            let list_node = document.createElement("LI");
+            list_node.appendChild(document.createTextNode(data[i][1])); //Displaying symbol
+            document.getElementById('gene_list').appendChild(list_node);
+
+            //Add to cytoscape core
             cy.add([
               {
                 group:'nodes',
@@ -147,7 +144,7 @@
           gene_neighborhood.layout({name:'concentric'}).run()
         }//End of success function
       }); //End of gene ajax call
-  } //End of chemicalQuery function
+  }   //End of chemicalQuery function
 
   function geneQuery(node){
     if(node.id() == undefined){
@@ -158,11 +155,22 @@
 
     cy.remove(node.absoluteComplement()) //Delete all other nodes if they exist
     
+    //Clearing the sidebar
+    document.getElementById('chem_list').innerHTML = '';
+    document.getElementById('se_list').innerHTML = '';
+    document.getElementById('gene_list').innerHTML = '';
+    
     //Adding all the associated side effects
     $.ajax({
       url: 'api/associated_side_effects/gene/'+node.id(),
       success: function(data){
         for(i in data){
+          //Add to side bar
+          let list_node = document.createElement("LI");
+          list_node.appendChild(document.createTextNode(data[i][0]));
+          document.getElementById('se_list').appendChild(list_node);
+
+          //Add to cytoscape core 
           cy.add([
             {
               group:'nodes',
@@ -185,6 +193,12 @@
       url: 'api/associated_chemicals/gene/'+node.id(),
       success: function(data){
         for(i in data){
+          //Add to side bar
+          let list_node = document.createElement("LI");
+          list_node.appendChild(document.createTextNode(data[i][0]));
+          document.getElementById('chem_list').appendChild(list_node);
+
+          //Add to cytoscape core
           cy.add([
             {
               group: 'nodes',
@@ -201,7 +215,7 @@
         gene_neighborhood.layout({name:'concentric'}).run()
       } //End of success function
     }); //End of gene ajax call
-  }   
+  }   //End of geneQuery function
 
   function sideEffectQuery(node){
     if(node.id() == undefined){
@@ -211,12 +225,23 @@
     console.log("Searching for "+ node.id());
 
     cy.remove(node.absoluteComplement()) //Delete all other nodes if they exist
+
+    //Clearing the sidebar
+    document.getElementById('chem_list').innerHTML = '';
+    document.getElementById('se_list').innerHTML = '';
+    document.getElementById('gene_list').innerHTML = '';
     
     //Adding all the associated side effects
     $.ajax({
       url: 'api/associated_genes/side_effect/'+node.id(),
       success: function(data){
         for(i in data){
+          //Add to side bar
+          let list_node = document.createElement("LI");
+          list_node.appendChild(document.createTextNode(data[i][1]));
+          document.getElementById('gene_list').appendChild(list_node);
+
+          //Adding to cytoscape core
           cy.add([
             {
               group:'nodes',
@@ -255,6 +280,12 @@
       url: 'api/associated_chemicals/side_effect/'+node.id(),
       success: function(data){
         for(i in data){
+          //Add to side bar
+          let list_node = document.createElement("LI");
+          list_node.appendChild(document.createTextNode(data[i][0]));
+          document.getElementById('chem_list').appendChild(list_node);
+
+          //Add to cytoscape core
           cy.add([
             {
               group: 'nodes',
@@ -287,14 +318,13 @@
         }).run() 
       } //End of success function
     }); //End of ajax
-  }   
+  }   //End of sideEffectQuery
   </script>
 
 
 <body style="background-color:rgb(243, 243, 243)">
-    <div class="container-fluid" style="z-index: 30; position: relative; box-shadow: 0px 2px 15px rgba(0, 0, 0, .5); background-color: #DDD">
+    <div class="container-fluid" style="z-index: 30; position: relative; box-shadow: 0px 2px 10px rgba(0, 0, 0, .5); background-color: #DDD">
       <h2 style="display: inline-block"> [Drug/Side-Effect/Gene]  Visualization</h2>   
-      <button class="btn btn-primary" onclick = "getChemicalData()">Retrieve Data</button>
       <button class="btn btn-default" onclick="cy.layout({name:'random', animate:true}).run()">Random Layout</button>
       <button class="btn btn-default" onclick="cy.layout({name:'grid', animate:true}).run()">Grid Layout</button>
       <button class="btn btn-default" onclick="cy.layout({name:'concentric', animate: true, 
@@ -306,6 +336,7 @@
           return 2;
         }
       }).run()">Concentric Layout</button>
+      <button class="btn btn-default" onclick="document.getElementById('gene_list').innerHTML = '';">Test</button>
     </br></br>
       <!-- <button onclick="console.log(cy.zoom())">Zoom Level</button> -->
     </div>
@@ -320,33 +351,27 @@
               <div class="panel panel-primary" style="border-radius: 0px; height: 150px">
                   <div class="panel-heading" style="border-radius: 0px">Associated Side Effects</div>
                   <div class="panel-body fixed-panel" style="max-height: 100px; min-height: 100px; overflow:hidden; overflow-y: scroll">
-                    <a href>A</a></br>
-                    <a href>B</a></br>
-                    <a href>C</a></br>
-                    <a href>D</a></br>
-                    <a href>E</a></br>
+                    <ul id="se_list">
+                      <!-- Fill with side effect queries -->
+                    <ul>
                   </div>
                 </div>                  
               <hr>
               <div class="panel panel-primary" style="border-radius: 0px; height: 150px">
                 <div class="panel-heading" style="border-radius: 0px">Associated Genes</div>
                   <div class="panel-body fixed-panel" style="max-height: 100px; min-height: 100px; overflow:hidden; overflow-y: scroll">
-                    <a href>A</a></br>
-                    <a href>B</a></br>
-                    <a href>C</a></br>
-                    <a href>D</a></br>
-                    <a href>E</a></br>
+                    <ul id = "gene_list">
+                      <!-- Fill with gene queries -->
+                    </ul>
                   </div>
               </div>  
               <hr>
               <div class="panel panel-primary" style="border-radius: 0px; height: 150px">
                   <div class="panel-heading" style="border-radius: 0px">Associated Drugs</div>
                     <div class="panel-body fixed-panel" style="max-height: 100px; min-height: 100px; overflow:hidden; overflow-y: scroll">
-                      <a href>A</a></br>
-                      <a href>B</a></br>
-                      <a href>C</a></br>
-                      <a href>D</a></br>
-                      <a href>E</a></br>
+                      <ul id="chem_list">
+                        <!-- Fill with chem queries -->
+                      </ul>
                     </div>
                 </div>  
                 <hr>
