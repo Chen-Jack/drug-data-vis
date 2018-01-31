@@ -20,8 +20,9 @@
 
     <style type="text/css">
         #cy{
-            background-color: rgb(190, 228, 233);
+            background-color: rgb(214, 231, 233);
             /* border-radius: 10px; */
+            position: relative;
             height: 500px;
             /* box-shadow: 0px 2px 5px rgba(0, 0, 0, .25) */
         }
@@ -68,8 +69,26 @@
     }
 
     function searchBox(){
+      let filter_var = document.getElementById("search_filter").value;
+      console.log(filter_var);
+      if(filter_var == 'invalid'){
+        console.log("invalid filter for the search box");
+        return;
+      }
+
       let node = cy.getElementById(document.getElementById('search_box').value);
-      chemicalQuery(node);
+      if( filter_var == "chem"){
+        chemicalQuery(node);
+      }
+      else if(filter_var == "gene"){
+        geneQuery(node);
+      }
+      else if(filter_var == "se"){
+        sideEffectQuery(node);
+      }
+      else{
+        console.log("error with the searchBox");
+      }
     }
 
     function chemicalQuery(node){
@@ -323,9 +342,8 @@
 
 
 <body style="background-color:rgb(243, 243, 243)">
-    <div class="container-fluid" style="z-index: 30; position: relative; box-shadow: 0px 2px 10px rgba(0, 0, 0, .5); background-color: #DDD">
-      <h2 style="display: inline-block"> [Drug/Side-Effect/Gene]  Visualization</h2>   
-      <button class="btn btn-default" onclick="cy.layout({name:'random', animate:true}).run()">Random Layout</button>
+    <div class="container-fluid" style="z-index: 30; position: relative; box-shadow: 0px 1px 5px rgba(0, 0, 0, .5); background-color: rgb(225, 231, 236)">
+      <h2 style="display: inline-block"> [Drug/Side-Effect/Gene]  Visualization</h2> 
       <button class="btn btn-default" onclick="cy.layout({name:'grid', animate:true}).run()">Grid Layout</button>
       <button class="btn btn-default" onclick="cy.layout({name:'concentric', animate: true, 
       concentric: function(ele){
@@ -336,7 +354,7 @@
           return 2;
         }
       }).run()">Concentric Layout</button>
-      <button class="btn btn-default" onclick="document.getElementById('gene_list').innerHTML = '';">Test</button>
+      <button class="btn btn-info" style="border-radius: 0" onclick="cy.reset()">Reset View</button>
     </br></br>
       <!-- <button onclick="console.log(cy.zoom())">Zoom Level</button> -->
     </div>
@@ -344,11 +362,26 @@
     <div class = "container-fluid">
       <div class="row">
         <!-- Left Side Bar -->
-          <div class="rounded col-sm-3 col-md-3" style="z-index: 10; position: relative;background-color:#EEE;box-shadow: 0px 2px 5px rgba(0, 0, 0, .25)">
+          <div class="rounded col-sm-3 col-md-3" style="max-height: 500px; overflow:hidden; overflow-y: scroll; z-index: 10; position: relative;background-color:#EEE;box-shadow: 0px 2px 5px rgba(0, 0, 0, .25)">
               <hr>
-              <input type="text" id="search_box" placeholder="Search..." style="width: 75%"><button onclick="searchBox()"><span class="glyphicon glyphicon-search"></span></button>
+              <div class="dropdown" style="float:left">
+                  <button class="btn btn-default dropdown-toggle" value = "invalid" type="button" id="search_filter" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                    <script>
+                    function search_filter_selection(val){document.getElementById('search_filter').value = val}
+                    </script>
+                    <li><a href="#" onclick="search_filter_selection('chem')">Drug (CID)</a></li>
+                    <li><a href="#" onclick="search_filter_selection('gene')">Gene (HGNC)</a></li>
+                    <li><a href="#" onclick="search_filter_selection('se')">Side Effects (UMLS CUI)</a></li>
+                  </ul>
+                </div>
+              <input style="float:left" type="text" id="search_box" placeholder="Search..." style="width: 75%">
+                <button onclick="searchBox()">
+                <span class="glyphicon glyphicon-search"></span></button>
               <hr>
-              <div class="panel panel-primary" style="border-radius: 0px; height: 150px">
+              <div class="panel panel-success" style="border-radius: 0px; height: 150px">
                   <div class="panel-heading" style="border-radius: 0px">Associated Side Effects</div>
                   <div class="panel-body fixed-panel" style="max-height: 100px; min-height: 100px; overflow:hidden; overflow-y: scroll">
                     <ul id="se_list">
@@ -357,7 +390,7 @@
                   </div>
                 </div>                  
               <hr>
-              <div class="panel panel-primary" style="border-radius: 0px; height: 150px">
+              <div class="panel panel-danger" style="border-radius: 0px; height: 150px">
                 <div class="panel-heading" style="border-radius: 0px">Associated Genes</div>
                   <div class="panel-body fixed-panel" style="max-height: 100px; min-height: 100px; overflow:hidden; overflow-y: scroll">
                     <ul id = "gene_list">
@@ -366,7 +399,7 @@
                   </div>
               </div>  
               <hr>
-              <div class="panel panel-primary" style="border-radius: 0px; height: 150px">
+              <div class="panel panel-info" style="border-radius: 0px; height: 150px">
                   <div class="panel-heading" style="border-radius: 0px">Associated Drugs</div>
                     <div class="panel-body fixed-panel" style="max-height: 100px; min-height: 100px; overflow:hidden; overflow-y: scroll">
                       <ul id="chem_list">
@@ -380,9 +413,6 @@
               <input id="cid_checkbox" type="checkbox"> CID</br>
               <input id="gene_checkbox" type="checkbox"> Gene Symbol</br>
               <input id="se_checkbox" type="checkbox"> Side Effect</br>
-              <hr>
-              <button class="btn btn-info btn-block" style="border-radius: 0" onclick="cy.reset()">Reset View</button>
-              <hr>
           </div>
 
         <!-- Cytoscape Canvas -->
@@ -434,7 +464,7 @@
             'target-arrow-shape': 'triangle',
             'arrow-scale': 0.25,
             'curve-style': 'bezier',
-            'line-style' : 'dashed',
+            'line-style' : 'dotted',
           }
         }
       ],
