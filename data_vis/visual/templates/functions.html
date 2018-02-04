@@ -1,88 +1,133 @@
 <script>
+  function updateSideBar(list_name, text_data){
+    let list_node = document.createElement("LI");
+    list_node.appendChild(document.createTextNode(text_data);
+    document.getElementById('list_name').appendChild(list_node);
+  }
 
+  function clearSideBar(type){
+    if(type == 'chemical')
+      document.getElementById('chem_list').innerHTML="";
+    else if(type == "gene")
+      document.getElementById('gene_list').innerHTML="";
+    else if(type == "side_effect")
+      document.getElementById('se_list').innerHTML="";
+    else
+      console.log("Error when clearing sidebar");
+  }
 
-function getChemicalData(){
-      /*
-      Gets a JSON response that contains all the chemicals inside the database.
-      Each chemical contains it's CID, InChiKey, total side effects, and total genes, respectively.
-      */
-      $.ajax({
-        url: "{% url 'chemical_list' %}" ,
-        method: 'GET',
-        dataType: 'json',
+  function addChemical(query_name){
+    /*
+    Searchs for a chemical in the database based on the query_name,adds it 
+    to the cytoscape core and returns the object
+    */
 
-        success: function(chem_list){
-          console.log("Successfully retrieved API CHEM LIST")
-          cy.startBatch();
-          for(let i in chem_list){
+    let CID = null
+    $.ajax({
+      async: false,
+      url: 'api/chemical/' + query_name,
+      success: function(data){
+        if(data.length != 0){
+          cy.remove(cy.nodes()) //Delete all nodes
+          cy.add({
+            group: 'nodes',
+            data: {
+                id: data['CID']
+            }
+          })
+          CID = data['CID']
+        }
+      }
+    });
 
-            //Adding to cytoscape core
-            cy.add({
-              group: 'nodes',
-              data:{
-                id: chem_list[i][0], //CID
-                InChIKey: chem_list[i][1],
-                total_se: chem_list[i][2],
-                total_gene: chem_list[i][3],
-              },
-              classes: 'chemical'
-            });
-          };
-          cy.endBatch();
-          
-          cy.layout({name:'random'}).run();
-        } //End of ajax success function
-      });
+    return cy.getElementById(CID)
+  } //End of addChemical(query_name)
+
+  function topLevelSearch(type){
+    let query_name = document.getElementById("top_level_search").value;
+
+    if (type == "chem"){
+      let node = addChemical(query_name);
+      chemicalQuery(node);
     }
-
-    function searchBox(){
-      let filter_var = document.getElementById("search_filter").value;
-      console.log(filter_var);
-      if(filter_var == 'invalid'){
-        console.log("invalid filter for the search box");
-        return;
-      }
-
-      let node = cy.getElementById(document.getElementById('search_box').value);
-      if( filter_var == "chem"){
-        chemicalQuery(node);
-      }
-      else if(filter_var == "gene"){
-        geneQuery(node);
-      }
-      else if(filter_var == "se"){
-        sideEffectQuery(node);
-      }
-      else{
-        console.log("error with the searchBox");
-      }
+    else if(type == "gene"){
+        geneQuery(query_name)
     }
+    else if(type == "side_effect"){
+        sideEffectQuery(query_name)
+    }
+    else{
+        console.log('invalid top layer search')
+    }
+  } //End of topLevelSearch(type)
 
-    function chemicalQuery(node){
-      if(node.id() == undefined){
-        console.log("Cannot find node.");
-        return;
-      }
-      console.log("Searching for "+ node.id());
-
-      cy.remove(node.absoluteComplement()) //Delete all other nodes if they exist
-
-      //Clearing the sidebar
-      document.getElementById('chem_list').innerHTML = '';
-      document.getElementById('se_list').innerHTML = '';
-      document.getElementById('gene_list').innerHTML = '';
-
-      //Adding all the associated side effects
+  function addNeighboringChem(node, type){
+    if(type == "gene"){
       $.ajax({
-        url: 'api/associated_side_effects/chemical/'+node.id(),
+        url: 'api/associated_chemicals/gene/'+node.id(),
         success: function(data){
           for(i in data){
             //Add to side bar
             let list_node = document.createElement("LI");
             list_node.appendChild(document.createTextNode(data[i][0]));
-            document.getElementById('se_list').appendChild(list_node);
+            document.getElementById('chem_list').appendChild(list_node);
 
             //Add to cytoscape core
+            cy.add([
+              {
+                group: 'nodes',
+                data:{id: data[i][0], InChIKey: data[i][1], total_se: data[i][2], total_gene: data[i][3]},
+                classes: 'chemical'
+              },
+              {
+                group: 'edges',
+                data: {id: node.id() + '->' + data[i][0], target: data[i][0], source: node.id()}
+              }
+            ]);
+          } 
+          let gene_neighborhood = node.union(cy.nodes('.chemical'));
+          gene_neighborhood.layout({name:'concentric'}).run()
+        } 
+      }); 
+    }
+
+    else if(type == "side_effect"){
+      $.ajax({
+        url: 'api/associated_chemicals/side_effect/'+node.id(),
+        success: function(data){
+          for(i in data){
+            
+            updateSideBar('chemical', data[i][0])
+
+            cy.add([
+              {
+                group: 'nodes',
+                data:{id: data[i][0], InChIKey: data[i][1], total_se: data[i][2], total_gene: data[i][3]},
+                classes: 'chemical'
+              },
+              {
+                group: 'edges',
+                data: {id: node.id() + '->' + data[i][0], target: data[i][0], source: node.id()}
+              }
+            ]);
+          }
+        } 
+      }); 
+    }
+  } // End of addNeighboringChem(node, type)
+
+  function addNeighboringSE(node, type){
+    /*
+    Adds all neighboring side effects to the node and its edges.
+    */
+    if(type == 'chem'){
+      $.ajax({
+        url: 'api/associated_side_effects/chemical/'+node.id(),
+        success: function(data){
+          for(i in data){
+            
+            updateSideBar('se_list', data[i][0]);
+
             cy.add([
               {
                 group:'nodes',
@@ -94,26 +139,49 @@ function getChemicalData(){
                 data: {id: node.id() +'->'+ data[i][1] , target: data[i][1], source: node.id(),  weight:parseInt(Math.random()*30)},
               }
             ]);
-          };//End of for loop
-          node.closedNeighborhood().layout({name:'concentric', animate:true}).run();
+          };
+        } 
+      }); 
+    }
 
+    else if(type == "gene"){
+      $.ajax({
+        url: 'api/associated_side_effects/gene/'+node.id(),
+        success: function(data){
+          for(i in data){
 
-        cy.fit(node.closedNeighborhood());
+            updateSideBar('side_effect', data[i][0])
 
-        } //End of success function
-      }); //End of side_effect ajax call
+            cy.add([
+              {
+                group:'nodes',
+                data: {id: data[i][1], name: data[i][0], total_chem: data[i][2], total_gene: data[i][3] },
+                classes: 'side_effect',
+              },
+              {
+                group: 'edges',
+                data: {id: node.id() +'->'+ data[i][1] , target: data[i][1], source: node.id()}
+              }
+            ]);
+          };
+        } 
+      });
+    }
+  } // End of addNeighboringSE(node, type)
 
-      //Adding all the associated genes
+  function addNeighboringGenes(node, type){
+    /*
+    Adds all the neighboring gene nodes and edges for the specified node.
+    The node is one of three types, chem, gene or side effect.
+    */
+    if(type == "chem"){
       $.ajax({
         url: 'api/associated_genes/chemical/'+node.id(),
         success: function(data){
           for(i in data){
-            //Add to side bar
-            let list_node = document.createElement("LI");
-            list_node.appendChild(document.createTextNode(data[i][1])); //Displaying symbol
-            document.getElementById('gene_list').appendChild(list_node);
 
-            //Add to cytoscape core
+            updateSideBar('gene_list', data[i][1])
+
             cy.add([
               {
                 group:'nodes',
@@ -126,183 +194,83 @@ function getChemicalData(){
               }
             ]);
           } 
-          let gene_neighborhood = node.union(cy.nodes('.gene'));
-          gene_neighborhood.layout({name:'concentric'}).run()
-        }//End of success function
-      }); //End of gene ajax call
-  }   //End of chemicalQuery function
-
-  function geneQuery(node){
-    if(node.id() == undefined){
-      console.log("Cannot find node.");
-      return;
-    }
-    console.log("Searching for "+ node.id());
-
-    cy.remove(node.absoluteComplement()) //Delete all other nodes if they exist
-    
-    //Clearing the sidebar
-    document.getElementById('chem_list').innerHTML = '';
-    document.getElementById('se_list').innerHTML = '';
-    document.getElementById('gene_list').innerHTML = '';
-    
-    //Adding all the associated side effects
-    $.ajax({
-      url: 'api/associated_side_effects/gene/'+node.id(),
-      success: function(data){
-        for(i in data){
-          //Add to side bar
-          let list_node = document.createElement("LI");
-          list_node.appendChild(document.createTextNode(data[i][0]));
-          document.getElementById('se_list').appendChild(list_node);
-
-          //Add to cytoscape core 
-          cy.add([
-            {
-              group:'nodes',
-              data: {id: data[i][1], name: data[i][0], total_chem: data[i][2], total_gene: data[i][3] }, //data:{id: cui, name: side-effect-name}
-              classes: 'side_effect',
-            },
-            {
-              group: 'edges',
-              data: {id: node.id() +'->'+ data[i][1] , target: data[i][1], source: node.id()}
-            }
-          ]);
-        };//End of for loop
-        node.closedNeighborhood().layout({name:'concentric', animate:true}).run();
-
-      } //End of success function
-    }); //End of side_effect ajax call
-
-    //Adding all the associated chemicals
-    $.ajax({
-      url: 'api/associated_chemicals/gene/'+node.id(),
-      success: function(data){
-        for(i in data){
-          //Add to side bar
-          let list_node = document.createElement("LI");
-          list_node.appendChild(document.createTextNode(data[i][0]));
-          document.getElementById('chem_list').appendChild(list_node);
-
-          //Add to cytoscape core
-          cy.add([
-            {
-              group: 'nodes',
-              data:{id: data[i][0], InChIKey: data[i][1], total_se: data[i][2], total_gene: data[i][3]},
-              classes: 'chemical'
-            },
-            {
-              group: 'edges',
-              data: {id: node.id() + '->' + data[i][0], target: data[i][0], source: node.id()}
-            }
-          ]);
-        } 
-        let gene_neighborhood = node.union(cy.nodes('.chemical'));
-        gene_neighborhood.layout({name:'concentric'}).run()
-      } //End of success function
-    }); //End of gene ajax call
-  }   //End of geneQuery function
-
-  function sideEffectQuery(node){
-    if(node.id() == undefined){
-      console.log("Cannot find node.");
-      return;
-    }
-    console.log("Searching for "+ node.id());
-
-    cy.remove(node.absoluteComplement()) //Delete all other nodes if they exist
-
-    //Clearing the sidebar
-    document.getElementById('chem_list').innerHTML = '';
-    document.getElementById('se_list').innerHTML = '';
-    document.getElementById('gene_list').innerHTML = '';
-    
-    //Adding all the associated side effects
-    $.ajax({
-      url: 'api/associated_genes/side_effect/'+node.id(),
-      success: function(data){
-        for(i in data){
-          //Add to side bar
-          let list_node = document.createElement("LI");
-          list_node.appendChild(document.createTextNode(data[i][1]));
-          document.getElementById('gene_list').appendChild(list_node);
-
-          //Adding to cytoscape core
-          cy.add([
-            {
-              group:'nodes',
-              data: {id: data[i][0], symbol: data[i][1], chromosome: data[i][3], total_se: data[i][4], total_chem: data[i][5]}, 
-              classes: 'gene',
-            },
-            {
-              group: 'edges',
-              data: {id: node.id() +'->'+ data[i][0] , target: data[i][0], source: node.id()},
-              style: {'visibility' : 'hidden'}
-            }
-          ]);
-        };//End of for loop
-        let max_degree = node.closedNeighborhood(".gene").length;
-        console.log(max_degree);
-        node.closedNeighborhood().layout({name:'concentric', animate:true, 
-          concentric: function(ele){
-            if(ele == node){
-              console.log("yea")
-              return 100;
-            }
-            else{
-              return 1;
-            }
-          },
-          levelWidth: function(nodes){
-            return parseInt(1/Math.log(max_degree)*10);
-          }
-        }).run();
-
-      } //End of success function
-    }); //End of side_effect ajax call
-
-    //Adding all the associated chemicals
-    $.ajax({
-      url: 'api/associated_chemicals/side_effect/'+node.id(),
-      success: function(data){
-        for(i in data){
-          //Add to side bar
-          let list_node = document.createElement("LI");
-          list_node.appendChild(document.createTextNode(data[i][0]));
-          document.getElementById('chem_list').appendChild(list_node);
-
-          //Add to cytoscape core
-          cy.add([
-            {
-              group: 'nodes',
-              data:{id: data[i][0], InChIKey: data[i][1], total_se: data[i][2], total_gene: data[i][3]},
-              classes: 'chemical'
-            },
-            {
-              group: 'edges',
-              data: {id: node.id() + '->' + data[i][0], target: data[i][0], source: node.id()}
-            }
-          ]);
         }
-        let gene_neighborhood = node.union(cy.nodes('.chemical'));
-        let max_degree = gene_neighborhood.length;
-        console.log(max_degree);
-        gene_neighborhood.layout({name:'concentric', 
-          concentric: function(ele){
-            if(ele == node){
-              console.log("yea")
-              return 100;
-            }
-            else{
-              let random_val = parseInt(Math.random()*1000) % (parseInt(max_degree/10));
-              return random_val;
-            }
-          },
-          levelWidth: function(nodes){
-            return parseInt(1/Math.log(max_degree)*10);
-          }
-        }).run() 
-      } //End of success function
-    }); //End of ajax
-  }   //End of sideEffectQuery
+      });
+    }
+    else if(type == "side_effect"){
+      $.ajax({
+        url: 'api/associated_genes/side_effect/'+node.id(),
+        success: function(data){
+          for(i in data){
+            //Add to side bar
+            let list_node = document.createElement("LI");
+            list_node.appendChild(document.createTextNode(data[i][1]));
+            document.getElementById('gene_list').appendChild(list_node);
+
+            //Adding to cytoscape core
+            cy.add([
+              {
+                group:'nodes',
+                data: {id: data[i][0], symbol: data[i][1], chromosome: data[i][3], total_se: data[i][4], total_chem: data[i][5]}, 
+                classes: 'gene',
+              },
+              {
+                group: 'edges',
+                data: {id: node.id() +'->'+ data[i][0] , target: data[i][0], source: node.id()},
+                style: {'visibility' : 'hidden'}
+              }
+            ]);
+          };
+        } 
+      }); 
+    }
+  }
+
+  function addNeighbors(node, type){
+    /*
+    Given a node and its type, it adds all of its neighboring nodes and edges
+    */
+    
+    clearSideBar('side_effect');
+    clearSideBar('gene');
+    clearSideBar('chemical');
+
+    if(type == 'chemical'){
+      addNeighboringSE(node, 'chem');
+      addNeighboringGenes(node, 'chem');
+    }
+    else if(type == 'gene'){
+      addNeighboringGenes(node, 'gene');
+      addNeighboringChemicals(node, 'gene');
+    }
+    else if(type == "side_effect"){
+      addNeighboringSE(node, 'side_effect');
+      addNeighboringGenes(node, 'side_effect');
+    }   
+  }   //End of addNeighbors(node,type)
+
+
+  function searchBox(){
+    let filter_var = document.getElementById("search_filter").value;
+    console.log(filter_var);
+    if(filter_var == 'invalid'){
+      console.log("invalid filter for the search box");
+      return;
+    }
+
+    let node = cy.getElementById(document.getElementById('search_box').value);
+    if( filter_var == "chem"){
+      chemicalQuery(node);
+    }
+    else if(filter_var == "gene"){
+      geneQuery(node);
+    }
+    else if(filter_var == "se"){
+      sideEffectQuery(node);
+    }
+    else{
+      console.log("error with the searchBox");
+    }
+  }
+    
 </script>

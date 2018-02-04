@@ -1,28 +1,5 @@
 
-<form id="LoginForm">
-        <input type="text" placeholder="test...">
-        <button type="submit">Submit</button>        
-    </form>
-
 <script>
-cy.on('add', 'node.test', function(event){
-    event.target.qtip({
-        content: {
-            text: $('#LoginForm')
-        },
-        position: {
-            my: 'center',
-            at: 'center',
-            target: $(document.body)
-        },
-        show: {
-            modal: {
-                on: true
-            }
-        }
-    });
-});
-
 
 cy.on('add', 'node.chemical', function(event){
     event.target.qtip({

@@ -13,34 +13,32 @@
     <script src={% static 'visual/cytoscape.js-panzoom-master/cytoscape-panzoom.js' %}></script>
     <link rel="stylesheet" type="text/css" href={% static 'visual/cytoscape.js-panzoom-master/cytoscape.js-panzoom.css' %}/>
   <!-- QTIP -->
-  <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.css">
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.js"></script>
-  <script src={% static 'visual/cytoscape.js-qtip-master/cytoscape-qtip.js' %}></script>
+    <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.css">
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.2.0/jquery.qtip.js"></script>
+    <script src={% static 'visual/cytoscape.js-qtip-master/cytoscape-qtip.js' %}></script>
 
 
-    <style type="text/css">
-        #cy{
-            background-color: rgb(219, 228, 230);
-            /* border-radius: 10px; */
-            position: relative;
-            height: 500px;
-            /* box-shadow: 0px 2px 5px rgba(0, 0, 0, .25) */
-        }
-        hr{
-          border-color: black;
-        }
-    </style>
+  <style type="text/css">
+    #cy{
+      background-color: rgb(219, 228, 230);
+      position: relative;
+      height: 500px;
+    }
+    hr{
+      border-color: black;
+    }
+  </style>
 </head>
 
 <!-- Functions -->
-    {% include 'functions.html' %}
+  {% include 'functions.html' %}
 
 
 <body style="background-color:rgb(243, 243, 243)">
     <div class="container-fluid" style="z-index: 30; position: relative; box-shadow: 0px 1px 5px rgba(0, 0, 0, .5); background-color: rgb(235, 233, 233)">
       <h2 style="display: inline-block"> [Drug/Side-Effect/Gene]  Visualization</h2> 
       <button class="btn btn-default" onclick="cy.layout({name:'grid', animate:true}).run()">Grid Layout</button>
-      <button class="btn btn-default" onclick="cy.layout({name:'cose', idealEdgeLength: function(edge){return edge.data('weight')}, animationThreshold: 2000, animate:true}).run()">Testing Cose</button>
+      <button class="btn btn-default" onclick="cy.layout({name:'cose', edgeElasticity: 1024, animationThreshold: 2000, animate:true}).run()">Testing Cose</button>
       <button class="btn btn-info" style="border-radius: 0" onclick="cy.reset()">Reset View</button>
       <button onclick="cy.add({group: 'nodes', data:{id:'test'}, classes:'test'});">Add test node</button>
     </br></br>
@@ -87,9 +85,9 @@
                     <li><a href="#" onclick="search_filter_selection('se')"><span id="se_dropdown" class="glyphicon"></span> Effects (UMLS CUI)</a></li>
                   </ul>
                 </div>
-              <input style="float:left" type="text" id="search_box" placeholder="Search..." style="width: 75%">
-                <button onclick="searchBox()">
-                <span class="glyphicon glyphicon-search"></span></button>
+                <input style="float:left" type="text" id="search_box" placeholder="Search..." style="width: 75%">
+                <button onclick="searchBox()"><span class="glyphicon glyphicon-search"></span></button>
+             
               <hr>
               <div class="panel panel-success" style="border-radius: 0px; height: 150px">
                   <div class="panel-heading" style="border-radius: 0px">Associated Side Effects</div>
@@ -138,86 +136,198 @@
     var cy = cytoscape({
       container: document.getElementById('cy'),
       style: [
-        {
-          selector: 'node.chemical',
-          style:{
-            'background-color': '#00A',
-            'shape': 'ellipse',
-            'width': 5,
-            'height': 5,
-          },
-        },
-        {
-          selector: 'node.side_effect',
-          style:{
-            'background-color': '#0A0',
-            'shape': 'diamond',
-            'width': 5,
-            'height': 5
-          },
-        },
-        {
-          selector: 'node.gene',
-          style:{
-            'background-color': '#A00',
-            'shape': 'triangle',
-            'width': 5,
-            'height': 5,
-          }
-        },
+        // {
+        //   selector: 'node.chemical',
+        //   style:{
+        //     'background-color': '#00A',
+        //     'shape': 'ellipse',
+        //     'width': 5,
+        //     'height': 5,
+        //   },
+        // },
+        // {
+        //   selector: 'node.side_effect',
+        //   style:{
+        //     'background-color': '#0A0',
+        //     'shape': 'diamond',
+        //     'width': 5,
+        //     'height': 5
+        //   },
+        // },
+        // {
+        //   selector: 'node.gene',
+        //   style:{
+        //     'background-color': '#A00',
+        //     'shape': 'triangle',
+        //     'width': 5,
+        //     'height': 5,
+        //   }
+        // },
         {
           selector: 'edge',
           style:{
-            width: 0.25,
-            'line-color' : 'black',
-            'target-arrow-color': 'black',
-            'target-arrow-shape': 'triangle',
-            'arrow-scale': 0.25,
+            // width: 0.25,
+            // 'line-color' : 'black',
+            // 'target-arrow-color': 'black',
+            // 'target-arrow-shape': 'triangle',
+            // 'arrow-scale': 0.25,
             'curve-style': 'bezier',
-            'line-style' : 'dotted',
+            // 'line-style' : 'dotted',
           }
         }
       ],
       layout:{
         name: 'null'
       },
-      // minZoom: 0.8,
-      // maxZoom: 20,
-      hideEdgesOnViewport: true,
-      textureOnViewport: true,
         
     }); //End of cyto initalization
 
-    getChemicalData();
-
     //Cytoscape Extensions--------
     cy.panzoom();
-  
-
-    //Cytoscape Events-------
-
-    cy.on('tap', 'edge', function(event){
-      console.log(event.target.data('weight'));
-    });
-
-    cy.on('tap', 'node', function(event){
-
-      if(event.target.hasClass('gene')){
-        geneQuery(event.target);
-      }
-      else if(event.target.hasClass('chemical')){
-        chemicalQuery(event.target);
-      }
-      else if(event.target.hasClass('side_effect')){
-        sideEffectQuery(event.target);
-      }
-      else{
-        console.log("The node you pressed does not have the main 3 classes [gene, chem, sideeffect")
-      }
-
-    });
   </script>
-  //QTIP events
+
+  <!-- <form id="SearchForm">
+      <h4>Search</h4> </br>
+      <input type="text" placeholder="test...">
+      <button type="submit">Submit</button>        
+  </form> -->
+    
+  <script>
+  function top_level(){
+    cy.add([
+      {
+        group: 'nodes',
+        data:{
+          id: 'chemical'
+        },
+        style:{
+          'label': "Chemical",
+          "text-valign" : "center",
+          "text-halign" : "center",
+          'shape': 'ellipse',
+          'background-color':'blue',
+          'width': 100,
+          'height': 100,
+          
+        }
+      },
+      {
+        group: 'nodes',
+        data:{
+          id: 'gene'
+        },
+        style:{
+          'label': "Genes",
+          "text-valign" : "center",
+          "text-halign" : "center",
+          'font-size': 16,
+          'shape': 'ellipse',
+          'background-color': 'red',
+          'width': 100,
+          'height': 100,
+        }
+      },
+      {
+        group: 'nodes',
+        data:{
+          id: 'side_effect'
+        },
+        style:{
+          'label': "Side Effects",
+          "text-valign" : "center",
+          "text-halign" : "center",
+          'shape': 'ellipse',
+          'background-color': 'green',
+          'width': 100,
+          'height': 100,          
+        }
+      },
+      {
+        group: 'edges',
+        data:{
+          id: 'a',
+          source: 'chemical',
+          target: 'side_effect',
+        },
+      },
+      {
+        group: 'edges',
+        data:{
+          id: 'b',
+          source: 'chemical',
+          target: 'gene',
+        },
+      },
+      {
+        group: 'edges',
+        data:{
+          id: 'c',
+          source: 'gene',
+          target: 'side_effect',
+        },
+      }
+    ]);
+
+    cy.layout({name:'cose', animate: 'end', randomize: true}).run();
+
+    cy.getElementById('chemical').qtip({
+      content: {
+          title: "Search for Drug",
+          text: '<input type="radio"> CID </br> <input type="text" id="top_level_search"><button onclick="topLevelSearch(\'chem\')">Search</button>'
+      },
+      position: {
+          my: 'center',
+          at: 'center',
+          target: $(document.body)
+      },
+      show: {
+        modal: {
+          on: true
+        }
+      }
+      
+    });
+    cy.getElementById('gene').qtip({
+      content: {
+          title: "Search for Gene",
+          text: '<input type="radio" name="parameter"> Symbol <input type="radio" name="parameter"> HGNC </br> <input type="text" id="top_level_search"><button>Search</button>'
+      },
+      position: {
+          my: 'center',
+          at: 'center',
+          target: $(document.body)
+      },
+      show: {
+        modal: {
+          on: true
+        }
+      }
+    });
+    cy.getElementById('side_effect').qtip({
+      content: {
+          title: "Search for Side Effect",
+          text: '<input type="radio"> UMLS CUI </br> <input type="text" id="top_level_search"> </br> <button>Search</button>'
+      },
+      position: {
+          my: 'center',
+          at: 'center',
+          target: $(document.body)
+      },
+      show: {
+        modal: {
+          on: true
+        }
+      }
+    });
+    
+  };
+
+  top_level();
+  </script>
+
+  <!-- Cytoscape Events -->
+  {% include 'events.html' %}
+  <!-- QTIP events -->
   {% include 'qtip.html' %}
 
 

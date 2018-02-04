@@ -10,23 +10,20 @@ from .models import SideEffect, Chemical, Gene
 class HomeView(TemplateView):
     template_name = "home.html"
 
+def get_single_chem(request, *args, **kwargs):
+    '''
+    Returns a JSON response of a single chemical object found
+    using a CID
+    '''
+    result = {}
+    CID_query = int(kwargs['ID'])
+    chem_obj = Chemical.objects.get(CID = CID_query)
+    if(chem_obj == None):
+        return JsonResponse({})
 
-def get_chemical_list(request, *args, **kwargs):
-    '''
-    API endpoint that returns all chemicals in the database.
-    Chemical: (CID, InChiKey, total_side_effects, total_genes)
-    '''
-    chemical_list = Chemical.objects.all()
-    qs = {}
-    counter = 0
-    for chemical in chemical_list:
-        total_side_effects = chemical.total_associated_side_effects
-        total_genes = chemical.total_associated_genes
-        qs.update({
-            str(counter): (chemical.CID, chemical.InChIKey, total_side_effects, total_genes )
-        })
-        counter += 1
-    return JsonResponse(qs)
+    return JsonResponse({'CID': chem_obj.CID, 'InChIKey': chem_obj.InChIKey, \
+    'total_associated_se': chem_obj.total_associated_side_effects, \
+    'total_associated_genes': chem_obj.total_associated_genes})
 
 def get_related_side_effects(request, *args, **kwargs):
     se_qs = None
@@ -86,4 +83,22 @@ def get_related_chemicals(request, *args, **kwargs):
         data.update({str(counter):(chem.CID, chem.InChIKey, chem.total_associated_side_effects, chem.total_associated_genes)})
         counter += 1
     return JsonResponse(data)
+
+
+def get_chemical_list(request, *args, **kwargs):
+    '''
+    API endpoint that returns all chemicals in the database.
+    Chemical: (CID, InChiKey, total_side_effects, total_genes)
+    '''
+    chemical_list = Chemical.objects.all()
+    qs = {}
+    counter = 0
+    for chemical in chemical_list:
+        total_side_effects = chemical.total_associated_side_effects
+        total_genes = chemical.total_associated_genes
+        qs.update({
+            str(counter): (chemical.CID, chemical.InChIKey, total_side_effects, total_genes )
+        })
+        counter += 1
+    return JsonResponse(qs)
 

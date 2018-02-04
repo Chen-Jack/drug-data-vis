@@ -1,0 +1,25 @@
+<script>
+  cy.on('tap', 'node', function(event){
+    console.log(event.target.id())
+  })
+
+// cy.on('tap', 'edge', function(event){
+//     console.log(event.target.data('weight'));
+//     });
+
+// cy.on('tap', 'node', function(event){
+
+//     if(event.target.hasClass('gene')){
+//         geneQuery(event.target);
+//     }
+//     else if(event.target.hasClass('chemical')){
+//         chemicalQuery(event.target);
+//     }
+//     else if(event.target.hasClass('side_effect')){
+//         sideEffectQuery(event.target);
+//     }
+//     else{
+//         console.log("The node you pressed does not have the main 3 classes [gene, chem, sideeffect")
+//     }
+// });
+</script>
