@@ -8,9 +8,11 @@ from django.db import models
 class SideEffect(models.Model):
     name = models.CharField(max_length = 50)
     UMLS_CUI = models.CharField(max_length = 8)
+    intermodel = models.ManyToManyField('self', through='se_similarity', symmetrical=False)
 
     total_associated_genes = models.IntegerField(null = True, blank=True)
     total_associated_chemicals = models.IntegerField(null = True, blank=True)
+
     
     def __str__ (self):
         return self.name
@@ -33,6 +35,7 @@ class Gene(models.Model):
     Symbol = models.CharField(max_length = 20)
     UniProt = models.CharField(max_length = 300)
     Chromosome = models.CharField(max_length = 50)
+    intermodel = models.ManyToManyField('self', through='gene_similarity', symmetrical=False)
 
     total_associated_side_effects = models.IntegerField(null = True, blank = True)
     associated_side_effects = models.ManyToManyField(SideEffect, blank = True)
@@ -61,6 +64,7 @@ class Chemical(models.Model):
     CID = models.IntegerField()
     InChIKey = models.CharField(max_length = 27)
     SMILES = models.CharField(max_length = 1000)
+    intermodel = models.ManyToManyField('self', through='chem_similarity', symmetrical=False)
 
     total_associated_side_effects = models.IntegerField(null=True, blank=True)
     associated_side_effects = models.ManyToManyField(SideEffect, blank=True)
@@ -91,21 +95,81 @@ class se_similarity(models.Model):
     se_b = models.ForeignKey(SideEffect, related_name='se_b_set')
     similarity = models.FloatField(null=True, blank=True)
 
-        
+    def __str__(self):
+        return('<' + str(self.se_a) + ', ' + str(self.se_b) + '> '+ str(self.similarity) )
+
+def parse_se_similarity():
+    if(len(se_similarity.objects.all()) != 0):
+        print("Your similarity table already has entries in it.")
+        return
+    se_sim_data = open('/Users/jack/Downloads/se_se_blank.csv', 'r')
+    dim =  len(se_sim_data.readline().split(',')) #Grabbing the dimension
+    print("dim", dim)
+    se_sim_data.close()
+
+    se_sim_data = open('/Users/jack/Downloads/se_se_blank.csv', 'r')
+
+    for i in range(dim):
+        parsed_line = se_sim_data.readline().strip('\n').split(',')
+        print(i)
+        for j in range(dim):
+            if(parsed_line[j] != '0' and parsed_line[j] != '1'):
+                se_a = SideEffect.objects.all()[i]
+                se_b = SideEffect.objects.all()[j]
+                se_similarity.objects.create(se_a = se_a , se_b=se_b, similarity = float(parsed_line[j]))
+                
+    se_sim_data.close()
+
+    print("Finished establishing side effect - side effect similarities.")
+   
 class chem_similarity(models.Model):
     chem_a= models.ForeignKey(Chemical, on_delete=models.CASCADE, related_name='chem_a_set')
     chem_b = models.ForeignKey(Chemical, on_delete=models.CASCADE, related_name='chem_b_set')
     similarity = models.FloatField(null=True, blank=True)
 
+    def __str__(self):
+        return('<' + str(self.chem_a) + ', ' + str(self.chem_b) + '> '+ str(self.similarity) )    
+
+def parse_chem_similarity():
+    if(len(chem_similarity.objects.all()) != 0):
+        print("Your similarity table already has entries in it.")
+        return
+    #Determining dimensions
+    chem_sim_data = open('/Users/jack/Downloads/chem_chem_SIDER.csv', 'r')
+    dim =  len(chem_sim_data.readline().split(',')) #Grabbing the dimension
+    chem_sim_data.close()
+
+    chem_sim_data = open('/Users/jack/Downloads/chem_chem_SIDER.csv', 'r')
+
+    for i in range(dim):
+        parsed_line = chem_sim_data.readline().strip('\n').split(',')
+        print(i)
+        for j in range(dim):
+            if(parsed_line[j] != '0' and parsed_line[j] != '1'):
+                chem_a = Chemical.objects.all()[i]
+                chem_b = Chemical.objects.all()[j]
+                chem_similarity.objects.create(chem_a = chem_a , chem_b=chem_b, similarity = float(parsed_line[j]))
+                
+    chem_sim_data.close()
+
+    print("Finished establishing chem-chem similarities.")
+    
+
 class gene_similarity(models.Model):
     gene_a = models.ForeignKey(Gene, related_name='gene_a_set')
     gene_b = models.ForeignKey(Gene, related_name='gene_b_set')
-    similairty = models.FloatField(null=True, blank=True)
+    similarity = models.FloatField(null=True, blank=True)
     interaction = models.FloatField(null=True, blank=True)
 
 
+    def __str__(self):
+        return('<' + str(self.gene_a) + ', ' + str(self.gene_b) + '> '+ str(self.similarity) )
 
-#Model Functions
+def parse_gene_similarity():
+    pass
+
+
+#Many To Many Functions
 def initChemToSideEffectRelations():
     '''
     Establishes the Many-To-Many connection between Chemicals and Side Effects"
