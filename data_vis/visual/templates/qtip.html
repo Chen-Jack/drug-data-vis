@@ -1,0 +1,109 @@
+
+<form id="LoginForm">
+        <input type="text" placeholder="test...">
+        <button type="submit">Submit</button>        
+    </form>
+
+<script>
+cy.on('add', 'node.test', function(event){
+    event.target.qtip({
+        content: {
+            text: $('#LoginForm')
+        },
+        position: {
+            my: 'center',
+            at: 'center',
+            target: $(document.body)
+        },
+        show: {
+            modal: {
+                on: true
+            }
+        }
+    });
+});
+
+
+cy.on('add', 'node.chemical', function(event){
+    event.target.qtip({
+      content: {
+        title: function(){return("[Drug]</br>CID: "+ this.id())},
+        text: function(){
+          let str_rep = "";
+          str_rep += "InChIKey: "+ this.data("InChIKey")+ "</br>";
+          str_rep += "Total Side Effects: "+ this.data('total_se') + "</br>"
+          str_rep += "Total Assoc. Genes: "+ this.data('total_gene');
+          return str_rep
+        },
+      },
+      position:{
+        at: 'top-right',
+        my: 'bottom-center'
+      },
+      show:{
+        event: 'mouseover'
+      },
+      hide:{
+        event: 'mouseout unfocus', 
+      },
+      style:{
+        classes: 'qtip-tipsy qtip-shadow qtip-rounded '
+      }
+    });
+  });
+
+  cy.on('add', 'node.side_effect', function(event){
+    event.target.qtip({
+      content: {
+        title: function(){return("[Side Effect]</br>UMLS CUI: "+ this.id())},
+        text: function(){
+          let str_rep = 'Effect: [' + this.data('name') + ']</br>';
+          str_rep += "Total Assoc. Drugs: "+ this.data('total_chem') + "</br>"
+          str_rep += "Total Assoc. Genes: "+ this.data('total_gene');
+          return str_rep;
+        },
+      },
+      position:{
+        at: 'top-right',
+        my: 'bottom-center'
+      },
+      show:{
+        event: 'mouseover'
+      },
+      hide:{
+        event: 'mouseout unfocus', 
+      },
+      style:{
+        classes: 'qtip-tipsy qtip-shadow qtip-rounded '
+      }
+    });
+  });
+
+  cy.on('add', 'node.gene', function(event){
+    event.target.qtip({
+      content: {
+        title: function(){return("[Gene]</br>Symbol: " + this.data('symbol'))},
+        text: function(){
+          let str_rep = "HGNC: "+ this.id() + "</br>Chromosome: " + this.data('chromosome') +"</br>";
+          str_rep += "Total Assoc. Drugs: "+ this.data('total_chem') + "</br>"
+          str_rep += "Total Assoc. Side Effects: "+ this.data('total_se');
+          return str_rep;
+        },
+      },
+      position:{
+        at: 'top-right',
+        my: 'bottom-center'
+      },
+      show:{
+        event: 'mouseover'
+      },
+      hide:{
+        event: 'mouseout unfocus', 
+      },
+      style:{
+        classes: 'qtip-tipsy qtip-shadow qtip-rounded '
+      }
+    });
+  });
+
+</script>
