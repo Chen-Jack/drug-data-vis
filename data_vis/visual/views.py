@@ -15,7 +15,6 @@ def get_single_chem(request, *args, **kwargs):
     Returns a JSON response of a single chemical object found
     using a CID
     '''
-    result = {}
     CID_query = int(kwargs['ID'])
     chem_obj = Chemical.objects.get(CID = CID_query)
     if(chem_obj == None):
@@ -24,6 +23,36 @@ def get_single_chem(request, *args, **kwargs):
     return JsonResponse({'CID': chem_obj.CID, 'InChIKey': chem_obj.InChIKey, \
     'total_associated_se': chem_obj.total_associated_side_effects, \
     'total_associated_genes': chem_obj.total_associated_genes})
+
+def get_single_gene(request, *args, **kwargs):
+    '''
+    Returns a JSON response of a single gene found using HGNC
+    '''
+
+    HGNC_query = int(kwargs['ID'])
+    gene_obj = Gene.objects.get(HGNC = HGNC_query)
+    if(gene_obj == None):
+        return JsonResponse({})
+
+    return JsonResponse({'HGNC': gene_obj.HGNC, 'Symbol': gene_obj.Symbol, \
+    'UniProt': gene_obj.UniProt, 'Chromosome': gene_obj.Chromosome,\
+    'total_associated_side_effects': gene_obj.total_associated_side_effects,\
+    'total_associated_chemicals': gene_obj.total_associated_chemicals})
+
+def get_single_side_effect(request, *args, **kwargs):
+    '''
+    Returns a JSON response of a single side effect found using UMLS CUI
+    '''
+    UMLS_CUI_query= kwargs['ID']
+    side_effect_obj = SideEffect.objects.get(UMLS_CUI = UMLS_CUI_query)
+    if(side_effect_obj == None):
+        return JsonResponse({})
+
+    return JsonResponse({'name': side_effect_obj.name, 'UMLS_CUI': side_effect_obj.UMLS_CUI,\
+    'total_associated_genes': side_effect_obj.total_associated_genes,\
+    'total_associated_chems': side_effect_obj.total_associated_chems})
+
+
 
 def get_related_side_effects(request, *args, **kwargs):
     se_qs = None
@@ -41,7 +70,9 @@ def get_related_side_effects(request, *args, **kwargs):
     data={}
     counter = 0
     for se in se_qs:
-        data.update({str(counter):(se.name, se.UMLS_CUI, se.total_associated_chemicals, se.total_associated_genes)})
+        entry = {'name': se.name, "UMLS_CUI": se.UMLS_CUI, 'total_associated_chemicals': se.total_associated_chemicals,\
+        'total_associated_genes': se.total_associated_genes}
+        data.update({str(counter): entry})
         counter += 1
 
     return JsonResponse(data)
@@ -61,7 +92,10 @@ def get_related_genes(request, *args, **kwargs):
     data = {}
     counter = 0
     for gene in gene_qs:
-        data.update({str(counter): (gene.HGNC, gene.Symbol, gene.UniProt, gene.Chromosome, gene.total_associated_side_effects, gene.total_associated_chemicals)})
+        entry = {'HGNC':gene.HGNC, 'Symbol': gene.Symbol, 'UniProt': gene.UniProt,\
+        'Chromosome':gene.Chromosome, 'total_associated_side_effects': gene.total_associated_side_effects,\
+        'total_associated_chemicals': gene.total_associated_chemicals}
+        data.update({str(counter): entry})
         counter += 1
     return JsonResponse(data)
 
@@ -80,25 +114,11 @@ def get_related_chemicals(request, *args, **kwargs):
     data = {}
     counter = 0
     for chem in chem_qs:
-        data.update({str(counter):(chem.CID, chem.InChIKey, chem.total_associated_side_effects, chem.total_associated_genes)})
+        entry = {'CID':chem.CID, 'InChIKey': chem.InChIKey,\
+        'total_associated_side_effects':chem.total_associated_side_effects,\
+        'total_associated_genes': chem.total_associated_genes}
+        data.update({str(counter):entry})
         counter += 1
     return JsonResponse(data)
 
-
-def get_chemical_list(request, *args, **kwargs):
-    '''
-    API endpoint that returns all chemicals in the database.
-    Chemical: (CID, InChiKey, total_side_effects, total_genes)
-    '''
-    chemical_list = Chemical.objects.all()
-    qs = {}
-    counter = 0
-    for chemical in chemical_list:
-        total_side_effects = chemical.total_associated_side_effects
-        total_genes = chemical.total_associated_genes
-        qs.update({
-            str(counter): (chemical.CID, chemical.InChIKey, total_side_effects, total_genes )
-        })
-        counter += 1
-    return JsonResponse(qs)
 

@@ -136,43 +136,37 @@
     var cy = cytoscape({
       container: document.getElementById('cy'),
       style: [
-        // {
-        //   selector: 'node.chemical',
-        //   style:{
-        //     'background-color': '#00A',
-        //     'shape': 'ellipse',
-        //     'width': 5,
-        //     'height': 5,
-        //   },
-        // },
-        // {
-        //   selector: 'node.side_effect',
-        //   style:{
-        //     'background-color': '#0A0',
-        //     'shape': 'diamond',
-        //     'width': 5,
-        //     'height': 5
-        //   },
-        // },
-        // {
-        //   selector: 'node.gene',
-        //   style:{
-        //     'background-color': '#A00',
-        //     'shape': 'triangle',
-        //     'width': 5,
-        //     'height': 5,
-        //   }
-        // },
+        {
+          selector: 'node.chemical',
+          style:{
+            'background-color': '#00A',
+            'shape': 'ellipse',
+          },
+        },
+        {
+          selector: 'node.side_effect',
+          style:{
+            'background-color': '#0A0',
+            'shape': 'diamond',
+          },
+        },
+        {
+          selector: 'node.gene',
+          style:{
+            'background-color': '#A00',
+            'shape': 'triangle',
+          }
+        },
         {
           selector: 'edge',
           style:{
-            // width: 0.25,
-            // 'line-color' : 'black',
-            // 'target-arrow-color': 'black',
-            // 'target-arrow-shape': 'triangle',
-            // 'arrow-scale': 0.25,
             'curve-style': 'bezier',
-            // 'line-style' : 'dotted',
+          }
+        },
+        {
+          selector: 'edge.similarity',
+          style:{
+            'line-style' : 'dotted',
           }
         }
       ],
@@ -184,16 +178,11 @@
 
     //Cytoscape Extensions--------
     cy.panzoom();
-  </script>
 
-  <!-- <form id="SearchForm">
-      <h4>Search</h4> </br>
-      <input type="text" placeholder="test...">
-      <button type="submit">Submit</button>        
-  </form> -->
+  </script>
     
   <script>
-  function top_level(){
+  function load_top_level(){
     cy.add([
       {
         group: 'nodes',
@@ -322,7 +311,7 @@
     
   };
 
-  top_level();
+  load_top_level();
   </script>
 
   <!-- Cytoscape Events -->
