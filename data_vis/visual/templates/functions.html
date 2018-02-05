@@ -126,18 +126,18 @@
         success: function(data){
           for(i in data){
             //Add to side bar
-            updateSideBar('chemical', data[i][0])
+            updateSideBar('chemical', data[i]['CID'])
 
             //Add to cytoscape core
             cy.add([
               {
                 group: 'nodes',
-                data:{id: data[i][0], InChIKey: data[i][1], total_se: data[i][2], total_gene: data[i][3]},
+                data:{id: data[i]['CID'], InChIKey: data[i]['InChIKey'], total_se: data[i]['total_associated_side_effects'], total_gene: data[i]['total_associated_genes']},
                 classes: 'chemical'
               },
               {
                 group: 'edges',
-                data: {id: node.id() + '->' + data[i][0], target: data[i][0], source: node.id()}
+                data: {id: node.id() + '->' + data[i]["CID"], target: data[i]['CID'], source: node.id()}
               }
             ]);
           } 
@@ -151,17 +151,17 @@
         success: function(data){
           for(i in data){
             
-            updateSideBar('chemical', data[i][0])
+            updateSideBar('chemical', data[i]['CID'])
 
             cy.add([
               {
                 group: 'nodes',
-                data:{id: data[i][0], InChIKey: data[i][1], total_se: data[i][2], total_gene: data[i][3]},
+                data:{id: data[i]['CID'], InChIKey: data[i]['InChIKey'], total_se: data[i]['total_associated_side_effects'], total_gene: data[i]['total_associated_genes']},
                 classes: 'chemical'
               },
               {
                 group: 'edges',
-                data: {id: node.id() + '->' + data[i][0], target: data[i][0], source: node.id()}
+                data: {id: node.id() + '->' + data[i]['CID'], target: data[i]['CID'], source: node.id()}
               }
             ]);
           }
@@ -234,17 +234,17 @@
         success: function(data){
           for(i in data){
 
-            updateSideBar('gene', data[i][1])
+            updateSideBar('gene', data[i]['Symbol'])
 
             cy.add([
               {
                 group:'nodes',
-                data: {id: data[i][0], symbol: data[i][1], chromosome: data[i][3], total_se: data[i][4], total_chem: data[i][5]}, 
+                data: {id: data[i]['HGNC'], symbol: data[i]['Symbol'], chromosome: data[i]['Chromosome'], total_se: data[i]['total_associated_side_effects'], total_chem: data[i]['total_associated_chemicals']}, 
                 classes: 'gene',
               },
               {
                 group: 'edges',
-                data: {id: node.id() +'->'+ data[i][0] , target: data[i][0], source: node.id(), weight:parseInt(Math.random()*30)},
+                data: {id: node.id() +'->'+ data[i]['HGNC'] , target: data[i]['HGNC'], source: node.id(), weight:parseInt(Math.random()*30)},
               }
             ]);
           } 
@@ -257,18 +257,18 @@
         success: function(data){
           for(i in data){
 
-            updateSideBar('gene', data[i][1]);
+            updateSideBar('gene', data[i]["Symbol"]);
 
             //Adding to cytoscape core
             cy.add([
               {
                 group:'nodes',
-                data: {id: data[i][0], symbol: data[i][1], chromosome: data[i][3], total_se: data[i][4], total_chem: data[i][5]}, 
+                data: {id: data[i]['HGNC'], symbol: data[i]['Symbol'], chromosome: data[i]['Chromosome'], total_se: data[i]['total_associated_side_effects'], total_chem: data[i]['total_associated_chemicals']}, 
                 classes: 'gene',
               },
               {
                 group: 'edges',
-                data: {id: node.id() +'->'+ data[i][0] , target: data[i][0], source: node.id()},
+                data: {id: node.id() +'->'+ data[i]['HGNC'] , target: data[i]['HGNC'], source: node.id()},
                 style: {'visibility' : 'hidden'}
               }
             ]);
