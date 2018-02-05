@@ -52,7 +52,31 @@ def get_single_side_effect(request, *args, **kwargs):
     'total_associated_genes': side_effect_obj.total_associated_genes,\
     'total_associated_chems': side_effect_obj.total_associated_chems})
 
+def get_chem_similarity(request, *args, **kwargs):
+    '''
+    Returns a JSON response of a collection of edges and it's weights
+    '''
+    data = {}
+    counter = 0
+    sim_set = Chemical.se_a_set.all()
+    for item in sim_set:
+        data.update({str(counter): {'target': item.chem_a , 'source': item.chem_b, 'weight': item.similarity}})
+        counter += 1
 
+    return JsonResponse(data)
+
+def get_side_similarity(request, *args, **kwargs):
+    '''
+    Returns a JSON response of a collection of edges and it's weights
+    '''
+    data = {}
+    counter = 0
+    sim_set = SideEffect.se_a_set.all()
+    for item in sim_set:
+        data.update({str(counter): {'target': item.side_a , 'source': item.side_b, 'weight': item.similarity}})
+        counter += 1
+
+    return JsonResponse(data)
 
 def get_related_side_effects(request, *args, **kwargs):
     se_qs = None
