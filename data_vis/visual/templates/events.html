@@ -2,19 +2,44 @@
 
 <script>
   cy.on('tap', 'node', function(event){
-    cy.remove(cy.nodes().difference(event.target));
+    console.log(event.target.id())
+  })
 
-    if(event.target.hasClass('gene')){
-      addNeighbors(event.target, 'gene');
-    }
-    else if(event.target.hasClass('chemical')){
-      addNeighbors(event.target, 'chemical');
-    }
-    else if(event.target.hasClass('side_effect')){
-      addNeighbors(event.target, 'side_effect');
-    }
-    else{
-      console.log("The node you pressed does not have the main 3 classes [gene, chem, sideeffect]")
-    }
+  cy.on('tap', 'edge.similarity', function(event){
+    console.log(event.target.data('weight'))
+  })
+
+  cy.on('tap', 'node.chemical', function(event){ 
+    cy.remove(cy.nodes().difference(event.target));
+    addNeighbors(event.target, 'chemical');
   });
+  
+  cy.on('tap', 'node.side_effect', function(event){  
+    cy.remove(cy.nodes().difference(event.target));
+    addNeighbors(event.target, 'side_effect');
+  });
+
+  cy.on('tap', 'node.gene', function(event){  
+    cy.remove(cy.nodes().difference(event.target));
+    addNeighbors(event.target, 'gene');
+  });
+
+
+  // cy.on('tap', 'node.chemical', function(event){
+  //   console.log("tap")
+  //   cy.remove(cy.nodes().difference(event.target));
+
+  //   if(event.target.hasClass('gene')){
+  //     addNeighbors(event.target, 'gene');
+  //   }
+  //   else if(event.target.hasClass('chemical')){
+  //     addNeighbors(event.target, 'chemical');
+  //   }
+  //   else if(event.target.hasClass('side_effect')){
+  //     addNeighbors(event.target, 'side_effect');
+  //   }
+  //   else{
+  //     console.log("The node you pressed does not have the main 3 classes [gene, chem, sideeffect]")
+  //   }
+  // });
 </script>

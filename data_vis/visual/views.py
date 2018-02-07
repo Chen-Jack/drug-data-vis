@@ -4,12 +4,12 @@ from __future__ import unicode_literals
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.http import JsonResponse, HttpResponse
-from .models import SideEffect, Chemical, Gene
-
+from .models import SideEffect, Chemical, Gene, chem_similarity, se_similarity
 
 class HomeView(TemplateView):
     template_name = "home.html"
 
+#Single access functions
 def get_single_chem(request, *args, **kwargs):
     '''
     Returns a JSON response of a single chemical object found
@@ -50,17 +50,19 @@ def get_single_side_effect(request, *args, **kwargs):
 
     return JsonResponse({'name': side_effect_obj.name, 'UMLS_CUI': side_effect_obj.UMLS_CUI,\
     'total_associated_genes': side_effect_obj.total_associated_genes,\
-    'total_associated_chems': side_effect_obj.total_associated_chems})
+    'total_associated_chems': side_effect_obj.total_associated_chemicals})
 
+#Self model similarity functions
 def get_chem_similarity(request, *args, **kwargs):
     '''
     Returns a JSON response of a collection of edges and it's weights
     '''
+    chem_obj = Chemical.objects.get(CID = int(kwargs['ID']))
+    sim_set = chem_similarity.objects.filter(chem_a = chem_obj)
     data = {}
     counter = 0
-    sim_set = Chemical.se_a_set.all()
     for item in sim_set:
-        data.update({str(counter): {'target': item.chem_a , 'source': item.chem_b, 'weight': item.similarity}})
+        data.update({str(counter): {'source': item.chem_a.CID , 'target': item.chem_b.CID, 'weight': item.similarity}})
         counter += 1
 
     return JsonResponse(data)
@@ -69,15 +71,19 @@ def get_side_similarity(request, *args, **kwargs):
     '''
     Returns a JSON response of a collection of edges and it's weights
     '''
+    se_obj = SideEffect.objects.get(UMLS_CUI = kwargs['ID'])
+    se_set = se_similarity.objects.filter(se_a = se_obj)
     data = {}
     counter = 0
-    sim_set = SideEffect.se_a_set.all()
-    for item in sim_set:
-        data.update({str(counter): {'target': item.side_a , 'source': item.side_b, 'weight': item.similarity}})
+    for item in se_set:
+        data.update({str(counter): {'source': item.se_a.UMLS_CUI , 'target': item.se_b.UMLS_CUI, 'weight': item.similarity}})
         counter += 1
 
+    print("DATE SIZE IS ", len(data))
     return JsonResponse(data)
 
+
+#Neighboring functions
 def get_related_side_effects(request, *args, **kwargs):
     se_qs = None
 
@@ -145,4 +151,12 @@ def get_related_chemicals(request, *args, **kwargs):
         counter += 1
     return JsonResponse(data)
 
-
+def get_similarity_data(request, *args, **kwargs):
+    if(kwargs['type'] == 'chemical'):
+        return get_chem_similarity()
+    elif(kwargs['type'] == 'side_effect'):
+        pass
+    elif(kwargs['type'] == 'gene'):
+        pass
+    else:
+        print("error getting similarity data")

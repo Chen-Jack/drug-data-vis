@@ -8,6 +8,10 @@
     <script src="https://code.jquery.com/jquery-3.3.0.min.js"></script>
     {% include 'bootstrap_link.html' %}
     <script src={% static 'visual/cytoscape.js-master/dist/cytoscape.min.js' %}></script>
+  <!-- Cose -->
+    <script src={% static 'visual/cytoscape.js-cose-bilkent-master/cytoscape-cose-bilkent.js' %}></script>
+  <!-- Cola -->
+    <script src={% static 'visual/cytoscape.js-cola-master/cytoscape-cola.js' %}></script>
   <!-- Panzoom -->
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
     <script src={% static 'visual/cytoscape.js-panzoom-master/cytoscape-panzoom.js' %}></script>
@@ -38,11 +42,14 @@
     <div class="container-fluid" style="z-index: 30; position: relative; box-shadow: 0px 1px 5px rgba(0, 0, 0, .5); background-color: rgb(235, 233, 233)">
       <h2 style="display: inline-block"> [Drug/Side-Effect/Gene]  Visualization</h2> 
       <button class="btn btn-default" onclick="cy.layout({name:'grid', animate:true}).run()">Grid Layout</button>
-      <button class="btn btn-default" onclick="cy.layout({name:'cose', edgeElasticity: 1024, animationThreshold: 2000, animate:true}).run()">Testing Cose</button>
+      <button class="btn btn-default" onclick="cy.layout({name:'cose', idealEdgeLength: function(edge){return 32}, animate:'end'}).run()">Testing Cose</button>
       <button class="btn btn-info" style="border-radius: 0" onclick="cy.reset()">Reset View</button>
-      <button onclick="cy.add({group: 'nodes', data:{id:'test'}, classes:'test'});">Add test node</button>
+      <button onclick="addChemicalSimilarities()">Add test node</button>
+      <button onclick="cy.layout({name:'cola'}).run()">Test Cola</button>
+      <button onclick="cy.layout({name: 'cose-bilkent'}).run()">Biklent</button>
+      <button onclick="cy.nodes.gene.layout({name:'cose'}).run()">A</button>
+      <button onclick="console.log(cy.node.side_effect.length)">B</button>
     </br></br>
-      <!-- <button onclick="console.log(cy.zoom())">Zoom Level</button> -->
     </div>
 
     <div class = "container-fluid">
@@ -160,12 +167,13 @@
         {
           selector: 'edge',
           style:{
-            'curve-style': 'bezier',
+            'curve-style': 'haystack',
           }
         },
         {
           selector: 'edge.similarity',
           style:{
+            'curve-style': 'haystack',
             'line-style' : 'dotted',
           }
         }
@@ -182,135 +190,6 @@
   </script>
     
   <script>
-  function load_top_level(){
-    cy.add([
-      {
-        group: 'nodes',
-        data:{
-          id: 'chemical'
-        },
-        style:{
-          'label': "Chemical",
-          "text-valign" : "center",
-          "text-halign" : "center",
-          'shape': 'ellipse',
-          'background-color':'blue',
-          'width': 100,
-          'height': 100,
-          
-        }
-      },
-      {
-        group: 'nodes',
-        data:{
-          id: 'gene'
-        },
-        style:{
-          'label': "Genes",
-          "text-valign" : "center",
-          "text-halign" : "center",
-          'font-size': 16,
-          'shape': 'ellipse',
-          'background-color': 'red',
-          'width': 100,
-          'height': 100,
-        }
-      },
-      {
-        group: 'nodes',
-        data:{
-          id: 'side_effect'
-        },
-        style:{
-          'label': "Side Effects",
-          "text-valign" : "center",
-          "text-halign" : "center",
-          'shape': 'ellipse',
-          'background-color': 'green',
-          'width': 100,
-          'height': 100,          
-        }
-      },
-      {
-        group: 'edges',
-        data:{
-          id: 'a',
-          source: 'chemical',
-          target: 'side_effect',
-        },
-      },
-      {
-        group: 'edges',
-        data:{
-          id: 'b',
-          source: 'chemical',
-          target: 'gene',
-        },
-      },
-      {
-        group: 'edges',
-        data:{
-          id: 'c',
-          source: 'gene',
-          target: 'side_effect',
-        },
-      }
-    ]);
-
-    cy.layout({name:'cose', animate: 'end', randomize: true}).run();
-
-    cy.getElementById('chemical').qtip({
-      content: {
-          title: "Search for Drug",
-          text: '<input type="radio"> CID </br> <input type="text" id="top_level_search"><button onclick="topLevelSearch(\'chem\')">Search</button>'
-      },
-      position: {
-          my: 'center',
-          at: 'center',
-          target: $(document.body)
-      },
-      show: {
-        modal: {
-          on: true
-        }
-      }
-      
-    });
-    cy.getElementById('gene').qtip({
-      content: {
-          title: "Search for Gene",
-          text: '<input type="radio" name="parameter"> Symbol <input type="radio" name="parameter"> HGNC </br> <input type="text" id="top_level_search"><button>Search</button>'
-      },
-      position: {
-          my: 'center',
-          at: 'center',
-          target: $(document.body)
-      },
-      show: {
-        modal: {
-          on: true
-        }
-      }
-    });
-    cy.getElementById('side_effect').qtip({
-      content: {
-          title: "Search for Side Effect",
-          text: '<input type="radio"> UMLS CUI </br> <input type="text" id="top_level_search"> </br> <button>Search</button>'
-      },
-      position: {
-          my: 'center',
-          at: 'center',
-          target: $(document.body)
-      },
-      show: {
-        modal: {
-          on: true
-        }
-      }
-    });
-    
-  };
-
   load_top_level();
   </script>
 

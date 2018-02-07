@@ -19,7 +19,7 @@ class SideEffect(models.Model):
 
     @staticmethod
     def initDatabase(): #Please only use this within the shell and only once.
-        if(len(SideEffect.objects.all()) != 0): #The database is already filled with something
+        if(len(SideEffect.objects.all()) != 0): 
             print("The database is already filled.")
             return 
         
@@ -47,7 +47,7 @@ class Gene(models.Model):
 
     @staticmethod
     def initDatabase():
-        if(len(Gene.objects.all()) != 0): #The database is already filled with something
+        if(len(Gene.objects.all()) != 0): 
             print("The database is already filled.")
             return 
         
@@ -77,7 +77,7 @@ class Chemical(models.Model):
 
     @staticmethod
     def initDatabase(): #Please only use this within the shell and only once
-        if(len(Chemical.objects.all()) != 0): #The database is already filled with something
+        if(len(Chemical.objects.all()) != 0):
             print("The database is already filled.")
             return 
         
@@ -112,7 +112,7 @@ def parse_se_similarity():
     for i in range(dim):
         parsed_line = se_sim_data.readline().strip('\n').split(',')
         print(i)
-        for j in range(dim):
+        for j in range(i):
             if(parsed_line[j] != '0' and parsed_line[j] != '1'):
                 se_a = SideEffect.objects.all()[i]
                 se_b = SideEffect.objects.all()[j]
@@ -144,7 +144,7 @@ def parse_chem_similarity():
     for i in range(dim):
         parsed_line = chem_sim_data.readline().strip('\n').split(',')
         print(i)
-        for j in range(dim):
+        for j in range(i):
             if(parsed_line[j] != '0' and parsed_line[j] != '1'):
                 chem_a = Chemical.objects.all()[i]
                 chem_b = Chemical.objects.all()[j]
@@ -166,8 +166,35 @@ class gene_similarity(models.Model):
         return('<' + str(self.gene_a) + ', ' + str(self.gene_b) + '> '+ str(self.similarity) )
 
 def parse_gene_similarity():
-    pass
+    if(len(gene_similarity.objects.all()) != 0):
+        print("Your similarity table already has entries in it.")
+        return
+    #Determining dimensions
+    gene_sim_data = open('/Users/jack/Downloads/prot_prot_sim.csv', 'r')
+    dim =  len(gene_sim_data.readline().split(','))
+    gene_sim_data.close()
 
+    #Begin parsing
+
+    gene_sim_data = open('/Users/jack/Downloads/prot_prot_sim.csv', 'r')
+    gene_interaction_data = open('/Users/jack/Downloads/ppi_biogrid.csv', 'r')
+
+    for i in range(dim):
+        parsed_sim_line = gene_sim_data.readline().strip('\n').split(',')
+        parsed_int_line = gene_interaction_data.readline().strip('\n').split(',')
+        print(i)
+        for j in range(i):
+            if((parsed_sim_line[j] != '0' and parsed_sim_line[j] != '1') or \
+            (parsed_int_line[j] != '0')):
+                gene_a = Gene.objects.all()[i]
+                gene_b = Gene.objects.all()[j]
+                gene_similarity.objects.create(gene_a = gene_a , gene_b=gene_b, \
+                similarity = float(parsed_sim_line[j]), interaction = float(parsed_int_line[j]))
+                
+    gene_sim_data.close()       
+    gene_int_data.close()
+
+    print("Finished establishing gene-gene relations.")
 
 #Many To Many Functions
 def initChemToSideEffectRelations():
@@ -189,14 +216,14 @@ def initChemToSideEffectRelations():
     se_qs = SideEffect.objects.all()
     chem_qs = Chemical.objects.all()
 
-    # csv_data = open('/Users/jack/Desktop/chem_se_SIDER.csv', 'r') 
-    # for row in range(total_row):
-    #     print(row)
-    #     parsed_line = csv_data.readline().rstrip('\n').split(',')
-    #     for col in range(total_col):
-    #         if(parsed_line[col] == '1'): 
-    #             chem_qs[row].associated_side_effects.add(se_qs[col])
-    # csv_data.close()
+    csv_data = open('/Users/jack/Desktop/chem_se_SIDER.csv', 'r') 
+    for row in range(total_row):
+        print(row)
+        parsed_line = csv_data.readline().rstrip('\n').split(',')
+        for col in range(total_col):
+            if(parsed_line[col] == '1'): 
+                chem_qs[row].associated_side_effects.add(se_qs[col])
+    csv_data.close()
 
     for chem in chem_qs:
         chem.total_associated_side_effects = len(chem.associated_side_effects.all())
@@ -225,14 +252,14 @@ def initChemToGeneRelations():
     gene_qs = Gene.objects.all()
     chem_qs = Chemical.objects.all()
 
-    # csv_data = open('/Users/jack/Desktop/chem_gene_SIDER.csv', 'r') 
-    # for row in range(total_row):
-    #     print(row)
-    #     parsed_line = csv_data.readline().rstrip('\n').split(',')
-    #     for col in range(total_col):
-    #         if(parsed_line[col] == '1'): 
-    #             chem_qs[row].associated_genes.add(gene_qs[col])
-    # csv_data.close()
+    csv_data = open('/Users/jack/Desktop/chem_gene_SIDER.csv', 'r') 
+    for row in range(total_row):
+        print(row)
+        parsed_line = csv_data.readline().rstrip('\n').split(',')
+        for col in range(total_col):
+            if(parsed_line[col] == '1'): 
+                chem_qs[row].associated_genes.add(gene_qs[col])
+    csv_data.close()
 
     for chem in chem_qs:
         chem.total_associated_genes = len(chem.associated_genes.all())
@@ -261,14 +288,14 @@ def initGeneToSideEffectRelations():
     gene_qs = Gene.objects.all()
     se_qs = SideEffect.objects.all()
 
-    # csv_data = open('/Users/jack/Desktop/gene_se_Novartis.csv', 'r') 
-    # for row in range(total_row):
-    #     print(row)
-    #     parsed_line = csv_data.readline().rstrip('\n').split(',')
-    #     for col in range(total_col):
-    #         if(parsed_line[col] == '1'): 
-    #             gene_qs[row].associated_side_effects.add(se_qs[col])
-    # csv_data.close()
+    csv_data = open('/Users/jack/Desktop/gene_se_Novartis.csv', 'r') 
+    for row in range(total_row):
+        print(row)
+        parsed_line = csv_data.readline().rstrip('\n').split(',')
+        for col in range(total_col):
+            if(parsed_line[col] == '1'): 
+                gene_qs[row].associated_side_effects.add(se_qs[col])
+    csv_data.close()
 
     for gene in gene_qs:
         gene.total_associated_side_effects = len(gene.associated_side_effects.all())
