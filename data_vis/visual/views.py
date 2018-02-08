@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.http import JsonResponse, HttpResponse
-from .models import SideEffect, Chemical, Gene, chem_similarity, se_similarity
+from .models import SideEffect, Chemical, Gene, chem_similarity, se_similarity, gene_similarity
 
 class HomeView(TemplateView):
     template_name = "home.html"
@@ -79,9 +79,22 @@ def get_side_similarity(request, *args, **kwargs):
         data.update({str(counter): {'source': item.se_a.UMLS_CUI , 'target': item.se_b.UMLS_CUI, 'weight': item.similarity}})
         counter += 1
 
-    print("DATE SIZE IS ", len(data))
     return JsonResponse(data)
 
+def get_gene_similarity(request, *args, **kwargs):
+    gene_obj = Gene.objects.get(HGNC = int(kwargs['ID']))
+    gene_set = gene_similarity.objects.filter(gene_a = gene_obj)
+    data = {}
+    counter = 0
+    for item in gene_set:
+        final = {}
+        inter = {'source': item.gene_a.HGNC , 'target': item.gene_b.HGNC, 'weight': item.interaction}
+        sim = {'source': item.gene_a.HGNC , 'target': item.gene_b.HGNC, 'weight': item.similarity}
+        final.update({'interaction': inter, 'similarity': sim})
+        data.update({str(counter): final})
+        counter += 1
+
+    return JsonResponse(data)
 
 #Neighboring functions
 def get_related_side_effects(request, *args, **kwargs):
@@ -151,12 +164,12 @@ def get_related_chemicals(request, *args, **kwargs):
         counter += 1
     return JsonResponse(data)
 
-def get_similarity_data(request, *args, **kwargs):
-    if(kwargs['type'] == 'chemical'):
-        return get_chem_similarity()
-    elif(kwargs['type'] == 'side_effect'):
-        pass
-    elif(kwargs['type'] == 'gene'):
-        pass
-    else:
-        print("error getting similarity data")
+# def get_similarity_data(request, *args, **kwargs):
+#     if(kwargs['type'] == 'chemical'):
+#         return get_chem_similarity()
+#     elif(kwargs['type'] == 'side_effect'):
+#         pass
+#     elif(kwargs['type'] == 'gene'):
+#         pass
+#     else:
+#         print("error getting similarity data")

@@ -454,6 +454,11 @@
                 data: {id: node.id() +'->'+ data[i]['HGNC'] , target: data[i]['HGNC'], source: node.id(), weight:parseInt(Math.random()*30)},
               }
             ]);
+          }
+
+          //Adding intermodel similarities
+          for( i in data){
+            addGeneSimilarities(data[i]['HGNC']);
           } 
         }
       });
@@ -480,6 +485,11 @@
               }
             ]);
           };
+
+          //Adding intermodel similarities
+          for( i in data){
+            addGeneSimilarities(data[i]['HGNC']);
+          } 
         } 
       }); 
     }
@@ -523,6 +533,40 @@
         }
       }
     });    
+  }
+
+  function addGeneSimilarities(HGNC){
+    $.ajax({
+      url: "api/gene_similarity/" + String(HGNC),
+      success: function( data ){
+        for(i in data){
+          console.log(data[i]['interaction']['source'])
+          cy.add([{
+            group: 'edges',
+            data: {
+              id: data[i]['similarity']['source'] + data[i]['similarity']['target'] ,
+              source: data[i]['similarity']['source'],
+              target: data[i]['similarity']['target'],
+              weight: data[i]['similarity']['weight']
+            },
+            classes: 'similarity'
+          },
+          {
+            group: 'edges',
+            data:{
+              id: data[i].interaction.source + data[i].interaction.target,
+              source: data[i]['interaction']['source'],
+              target: data[i]['interaction']['target'],
+              weight: data[i]['interaction']['weight']
+            },
+            classes: 'interaction',
+            style: {
+              'line-color' : "red"
+            }
+          }])
+        }
+      }
+    }); 
   }
 
   function updateSideBar(type, text_data){
