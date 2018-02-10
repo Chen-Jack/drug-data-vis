@@ -9,6 +9,34 @@ from .models import SideEffect, Chemical, Gene, chem_similarity, se_similarity, 
 class HomeView(TemplateView):
     template_name = "home.html"
 
+def get_exists(request, *args, **kwargs):
+    '''
+    Checks if a node exists in the DB
+    '''
+    result = None
+    
+    if(kwargs['type'] == 'chemical'):
+        CID = int(kwargs['ID'])
+        if(Chemical.objects.filter(CID = CID) != None):
+            result = True
+        else:
+            result = False
+    elif(kwargs['type'] == 'side_effect'):
+        UMLS_CUI = str(kwargs['ID'])
+        if(SideEffect.objects.filter(UMLS_CUI = UMLS_CUI) != None):
+            result = True
+        else:
+            result = False
+    elif(kwargs['type'] == 'gene'):
+        HGNC = int(kwargs['ID'])
+        if(Gene.Objects.filter(HGNC = HGNC) != None):
+            result = True
+        else:
+            result = False
+    
+    return JsonResponse({'exists': result})
+
+
 #Single access functions
 def get_single_chem(request, *args, **kwargs):
     '''

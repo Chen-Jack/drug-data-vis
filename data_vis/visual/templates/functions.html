@@ -187,16 +187,40 @@
 
   function searchNode(query_name, type){
     if (type == "chem"){
-      let node = addChemical(query_name);
-      addNeighbors(node, 'chemical');
+      $.ajax({
+        url: 'api/exists/chemical/' + query_name,
+        success: function(data){
+          if(data['exists'] == true){
+            cy.remove(cy.nodes()); //Clear the screen
+            let node = addChemical(query_name);
+            addNeighbors(node, 'chemical');
+          }
+        } 
+      })
     }
     else if(type == "gene"){
-      let node = addGene(query_name);
-      addNeighbors(node, 'gene');
+      $.ajax({
+        url: 'api/exists/gene/' + query_name,
+        success: function(data){
+          if(data['exists'] == true){
+            cy.remove(cy.nodes()); //Clear the screen
+            let node = addGene(query_name);
+            addNeighbors(node, 'gene');
+          }
+        } 
+      })
     }
     else if(type == "side_effect"){
-      let node = addSideEffect(query_name);
-      addNeighbors(node, 'side_effect')
+      $.ajax({
+        url: 'api/exists/side_effect/' + query_name,
+        success: function(data){
+          if(data['exists'] == true){
+            cy.remove(cy.nodes()); //Clear the screen
+            let node = addSideEffect(query_name);
+            addNeighbors(node, 'side_effect')
+          }
+        } 
+      })
     }
     else{
       console.log('invalid top layer search')
@@ -242,7 +266,6 @@
       url: 'api/chemical/' + query_name,
       success: function(data){
         if(data.length != 0){
-          cy.remove(cy.nodes()) //Delete all nodes
           cy.add({
             group: 'nodes',
             data: {
@@ -265,7 +288,6 @@
       url: 'api/gene/' + query_name,
       success: function(data){
         if(data.length != 0){
-          cy.remove(cy.nodes()) //Delete all nodes
           cy.add({
             group: 'nodes',
             data: {
@@ -290,7 +312,6 @@
       url: 'api/side_effect/' + query_name,
       success: function(data){
         if(data.length != 0){
-          cy.remove(cy.nodes()) //Delete all nodes
           cy.add({
             group: 'nodes',
             data: {
