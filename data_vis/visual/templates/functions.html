@@ -540,30 +540,40 @@
       url: "api/gene_similarity/" + String(HGNC),
       success: function( data ){
         for(i in data){
-          console.log(data[i]['interaction']['source'])
+          if(data[i]['type'] == 'similarity')
           cy.add([{
             group: 'edges',
             data: {
-              id: data[i]['similarity']['source'] + data[i]['similarity']['target'] ,
-              source: data[i]['similarity']['source'],
-              target: data[i]['similarity']['target'],
-              weight: data[i]['similarity']['weight']
+              id: data[i]['source'] + data[i]['target'] ,
+              source: data[i]['source'],
+              target: data[i]['target'],
+              weight: data[i]['weight']
+            },
+            classes: 'similarity',
+            style:{
+              'line-style': 'dotted',
+              'line-color': 'purple'
             },
             classes: 'similarity'
-          },
-          {
-            group: 'edges',
-            data:{
-              id: data[i].interaction.source + data[i].interaction.target,
-              source: data[i]['interaction']['source'],
-              target: data[i]['interaction']['target'],
-              weight: data[i]['interaction']['weight']
-            },
-            classes: 'interaction',
-            style: {
-              'line-color' : "red"
-            }
           }])
+
+          else if(data[i]['type'] == 'interaction'){
+            cy.add({
+              group: 'edges',
+              data:{
+                id: data[i]['source'] + data[i]['target'] ,
+                source: data[i]['source'],
+                target: data[i]['target'],
+                weight: data[i]['weight']
+              },
+              classes: 'interaction',
+              style: {
+                'line-style': 'solid',
+                'line-color' : "black"
+              },
+              classes: 'interaction'
+            });
+          }
         }
       }
     }); 

@@ -11,6 +11,7 @@
   <!-- Cose -->
     <script src={% static 'visual/cytoscape.js-cose-bilkent-master/cytoscape-cose-bilkent.js' %}></script>
   <!-- Cola -->
+    <script src="https://unpkg.com/webcola/WebCola/cola.min.js"></script>
     <script src={% static 'visual/cytoscape.js-cola-master/cytoscape-cola.js' %}></script>
   <!-- Panzoom -->
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"/>
@@ -45,7 +46,7 @@
       <button class="btn btn-default" onclick="cy.layout({name:'cose', idealEdgeLength: function(edge){return 32}, animate:'end'}).run()">Testing Cose</button>
       <button class="btn btn-info" style="border-radius: 0" onclick="cy.reset()">Reset View</button>
       <button onclick="addChemicalSimilarities()">Add test node</button>
-      <button onclick="cy.layout({name:'cola'}).run()">Test Cola</button>
+      <button onclick="cy.layout({name:'cola', animate:true}).run()">Test Cola</button>
       <button onclick="cy.layout({name: 'cose-bilkent'}).run()">Biklent</button>
       <button onclick="cy.nodes.gene.layout({name:'cose'}).run()">A</button>
       <button onclick="console.log(cy.node.side_effect.length)">B</button>
@@ -164,19 +165,6 @@
             'shape': 'triangle',
           }
         },
-        {
-          selector: 'edge',
-          style:{
-            'curve-style': 'haystack',
-          }
-        },
-        {
-          selector: 'edge.similarity',
-          style:{
-            'curve-style': 'haystack',
-            'line-style' : 'dotted',
-          }
-        }
       ],
       layout:{
         name: 'null'

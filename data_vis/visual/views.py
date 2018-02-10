@@ -87,11 +87,12 @@ def get_gene_similarity(request, *args, **kwargs):
     data = {}
     counter = 0
     for item in gene_set:
-        final = {}
-        inter = {'source': item.gene_a.HGNC , 'target': item.gene_b.HGNC, 'weight': item.interaction}
-        sim = {'source': item.gene_a.HGNC , 'target': item.gene_b.HGNC, 'weight': item.similarity}
-        final.update({'interaction': inter, 'similarity': sim})
-        data.update({str(counter): final})
+        if(item.interaction != 0):
+            data.update({str(counter):{'type': 'interaction', 'source': item.gene_a.HGNC , 'target': item.gene_b.HGNC, 'weight': item.interaction} })
+            counter += 1
+        if(item.similarity != 0):
+            data.update({str(counter): {'type': 'similarity', 'source': item.gene_a.HGNC , 'target': item.gene_b.HGNC, 'weight': item.similarity}})
+            counter +=1
         counter += 1
 
     return JsonResponse(data)
