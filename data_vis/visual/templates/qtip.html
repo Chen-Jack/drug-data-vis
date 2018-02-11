@@ -1,14 +1,6 @@
 
 <script>
 
-// cy.one('style', 'node', function(event){
-//   let degree = event.target.degree()
-//   event.target.style({
-//     'width': degree,
-//     'height': degree
-//   })
-// });
-
 cy.on('add', 'node.chemical', function(event){
     event.target.qtip({
       content: {

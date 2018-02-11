@@ -1,7 +1,7 @@
 <script>
 
   function applyCola(){
-    cy.layout({name:'cola', animate:true, edgeLength: function(ele){
+    cy.layout({name:'cola', animate:true, nodeDimensionsIncludeLabels: true, edgeLength: function(ele){
       let weight = ele.data('weight');
       if(ele.hasClass('neighbor') == true){
         return 1000;
@@ -16,10 +16,12 @@
   function resizeNodesByDegree(){
     //Updating styling based on degree
     cy.nodes().forEach(function(ele){
+      let new_dim = 50 + 15 * ele.degree(false);
       ele.style({
-        'width': 50 + 15*ele.degree(false),
-        'height': 50 + 15*ele.degree(false)
-      })
+        'width': new_dim,
+        'height': new_dim,
+        'font-size': '100%',
+      });
     });
   }
 
@@ -34,7 +36,6 @@
         style:{
           'label': "Chemical",
           "text-valign" : "center",
-          "text-halign" : "center",
           'shape': 'ellipse',
           'background-color':'blue',
           'width': 150,
@@ -50,7 +51,6 @@
         style:{
           'label': "Genes",
           "text-valign" : "center",
-          "text-halign" : "center",
           'shape': 'ellipse',
           'background-color': 'red',
           'width': 1500,
@@ -66,7 +66,6 @@
         style:{
           'label': "Side Effects",
           "text-valign" : "center",
-          "text-halign" : "center",
           'shape': 'ellipse',
           'background-color': 'green',
           'width': 400,
@@ -293,7 +292,14 @@
           cy.add({
             group: 'nodes',
             data:{id: data['CID'], InChIKey: data['InChIKey'], total_se: data['total_associated_se'], total_gene: data['total_associated_genes']},
-            classes: 'chemical'
+            classes: 'chemical',
+            style:{
+              label: data['CID'],
+              'color': 'white',
+              'text-outline-color': '#00A',
+              'text-outline-width': '10',
+              'text-valign': 'center',         
+            }
           })
           CID = data['CID']
         }
@@ -312,7 +318,14 @@
         cy.add({
           group: 'nodes',
           data: {id: data['HGNC'], Symbol: data['Symbol'], Chromosome: data['Chromosome'], total_chem: data['total_associated_chemicals'], total_se: data['total_associated_side_effects'] },
-          classes: 'gene'
+          classes: 'gene',
+          style:{
+            label: data['Symbol'],
+            'color': 'white',
+            'text-outline-color': '#A00',
+            'text-outline-width': '10',
+            'text-valign': 'center',         
+          }
         })
         HGNC = data['HGNC']
       },
@@ -330,7 +343,14 @@
           cy.add({
             group: 'nodes',
             data: {id: data["UMLS_CUI"], name: data['name'], total_chem: data['total_associated_chemicals'], total_gene: data['total_associated_genes'] },
-            classes: "side_effect"
+            classes: "side_effect",
+            style:{
+              label: data['name'],
+              'color': 'white',
+              'text-outline-color': '#0A0',
+              'text-outline-width': '10',
+              'text-valign': 'center',         
+            }
           })
           UMLS_CUI = data['UMLS_CUI']
         }
@@ -354,7 +374,14 @@
               {
                 group: 'nodes',
                 data:{id: data[i]['CID'], InChIKey: data[i]['InChIKey'], total_se: data[i]['total_associated_side_effects'], total_gene: data[i]['total_associated_genes']},
-                classes: 'chemical'
+                classes: 'chemical',
+                style:{
+                  label: data[i]['CID'],
+                  'color': 'white',
+                  'text-outline-color': '#00A',
+                  'text-outline-width': '10',
+                  'text-valign': 'center',         
+                }
               },
               {
                 group: 'edges',
@@ -386,7 +413,14 @@
               {
                 group: 'nodes',
                 data:{id: data[i]['CID'], InChIKey: data[i]['InChIKey'], total_se: data[i]['total_associated_side_effects'], total_gene: data[i]['total_associated_genes']},
-                classes: 'chemical'
+                classes: 'chemical',
+                style:{
+                  label: data[i]['CID'],
+                  'color': 'white',
+                  'text-outline-color': '#00A',
+                  'text-outline-width': '10',
+                  'text-valign': 'center',         
+                }
               },
               {
                 group: 'edges',
@@ -424,6 +458,13 @@
                 group:'nodes',
                 data: {id: data[i]["UMLS_CUI"], name: data[i]['name'], total_chem: data[i]['total_associated_chemicals'], total_gene: data[i]['total_associated_genes'] },
                 classes: 'side_effect',
+                style:{
+                  label: data[i]['name'],
+                  'color': 'white',
+                  'text-outline-color': '#0A0',
+                  'text-outline-width': '10',
+                  'text-valign': 'center',         
+                }
               },
               {
                 group: 'edges',
@@ -456,6 +497,13 @@
                 group:'nodes',
                 data: {id: data[i]['UMLS_CUI'], name: data[i]['name'], total_chem: data[i]['total_associated_chemicals'], total_gene: data[i]['total_associated_genes'] },
                 classes: 'side_effect',
+                style:{
+                  label: data[i]['name'],
+                  'color': 'white',
+                  'text-outline-color': '#0A0',
+                  'text-outline-width': '10',
+                  'text-valign': 'center',         
+                }
               },
               {
                 group: 'edges',
@@ -492,8 +540,15 @@
             cy.add([
               {
                 group:'nodes',
-                data: {id: data[i]['HGNC'], symbol: data[i]['Symbol'], chromosome: data[i]['Chromosome'], total_se: data[i]['total_associated_side_effects'], total_chem: data[i]['total_associated_chemicals']}, 
+                data: {id: data[i]['HGNC'], Symbol: data[i]['Symbol'], Chromosome: data[i]['Chromosome'], total_se: data[i]['total_associated_side_effects'], total_chem: data[i]['total_associated_chemicals']}, 
                 classes: 'gene',
+                style:{
+                  label: data[i]['Symbol'],
+                  'color': 'white',
+                  'text-outline-color': '#A00',
+                  'text-outline-width': '10',
+                  'text-valign': 'center',         
+                }
               },
               {
                 group: 'edges',
@@ -526,8 +581,15 @@
             cy.add([
               {
                 group:'nodes',
-                data: {id: data[i]['HGNC'], symbol: data[i]['Symbol'], chromosome: data[i]['Chromosome'], total_se: data[i]['total_associated_side_effects'], total_chem: data[i]['total_associated_chemicals']}, 
+                data: {id: data[i]['HGNC'], Symbol: data[i]['Symbol'], Chromosome: data[i]['Chromosome'], total_se: data[i]['total_associated_side_effects'], total_chem: data[i]['total_associated_chemicals']}, 
                 classes: 'gene',
+                style:{
+                  label: data[i]['Symbol'],
+                  'color': 'white',
+                  'text-outline-color': '#A00',
+                  'text-outline-width': '10',
+                  'text-valign': 'center',         
+                }
               },
               {
                 group: 'edges',
