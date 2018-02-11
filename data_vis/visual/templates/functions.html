@@ -205,6 +205,7 @@
           if(data['exists'] == true){
             cy.remove(cy.nodes()); //Clear the screen
             let node = addGene(query_name);
+            console.log(node.id())
             addNeighbors(node, 'gene');
           }
         } 
@@ -268,9 +269,7 @@
         if(data.length != 0){
           cy.add({
             group: 'nodes',
-            data: {
-              id: data['CID']
-            },
+            data:{id: data['CID'], InChIKey: data['InChIKey'], total_se: data['total_associated_se'], total_gene: data['total_associated_genes']},
             classes: 'chemical'
           })
           CID = data['CID']
@@ -287,20 +286,13 @@
       async: false,
       url: 'api/gene/' + query_name,
       success: function(data){
-        if(data.length != 0){
-          cy.add({
-            group: 'nodes',
-            data: {
-                id: data['HGNC']
-            },
-            classes: 'gene'
-          })
-          HGNC = data['HGNC']
-        }
+        cy.add({
+          group: 'nodes',
+          data: {id: data['HGNC'], name: data['name'], total_chem: data['total_associated_chemicals'], total_gene: data['total_associated_genes'] },
+          classes: 'gene'
+        })
+        HGNC = data['HGNC']
       },
-      failure: function(){
-        console.log("error")
-      }
     });
     return cy.getElementById(HGNC)
   }
@@ -314,9 +306,7 @@
         if(data.length != 0){
           cy.add({
             group: 'nodes',
-            data: {
-                id: data['UMLS_CUI']
-            },
+            data: {id: data["UMLS_CUI"], name: data['name'], total_chem: data['total_associated_chemicals'], total_gene: data['total_associated_genes'] },
             classes: "side_effect"
           })
           UMLS_CUI = data['UMLS_CUI']

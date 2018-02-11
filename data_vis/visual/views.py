@@ -14,7 +14,7 @@ def get_exists(request, *args, **kwargs):
     Checks if a node exists in the DB
     '''
     result = None
-    
+
     if(kwargs['type'] == 'chemical'):
         CID = int(kwargs['ID'])
         if(Chemical.objects.filter(CID = CID) != None):
@@ -29,7 +29,7 @@ def get_exists(request, *args, **kwargs):
             result = False
     elif(kwargs['type'] == 'gene'):
         HGNC = int(kwargs['ID'])
-        if(Gene.Objects.filter(HGNC = HGNC) != None):
+        if(Gene.objects.filter(HGNC = HGNC) != None):
             result = True
         else:
             result = False
