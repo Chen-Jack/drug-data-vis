@@ -38,7 +38,6 @@
 <!-- Functions -->
   {% include 'functions.html' %}
 
-
 <body style="background-color:rgb(243, 243, 243)">
     <div class="container-fluid" style="z-index: 30; position: relative; box-shadow: 0px 1px 5px rgba(0, 0, 0, .5); background-color: rgb(235, 233, 233)">
       <h2 style="display: inline-block"> [Drug/Side-Effect/Gene]  Visualization</h2> 
@@ -46,10 +45,11 @@
       <button class="btn btn-default" onclick="cy.layout({name:'cose', idealEdgeLength: function(edge){return 32}, animate:'end'}).run()">Testing Cose</button>
       <button class="btn btn-info" style="border-radius: 0" onclick="cy.reset()">Reset View</button>
       <button onclick="addChemicalSimilarities()">Add test node</button>
-      <button onclick="cy.layout({name:'cola', animate:true}).run()">Test Cola</button>
+      <button onclick="cy.layout({name:'cola', animate:true, edgeLength: 500}).run()">Test Cola</button>
       <button onclick="cy.layout({name: 'cose-bilkent'}).run()">Biklent</button>
-      <button onclick="cy.nodes.gene.layout({name:'cose'}).run()">A</button>
+      <button onclick="resizeNodesByDegree()">A</button>
       <button onclick="console.log(cy.node.side_effect.length)">B</button>
+      
     </br></br>
     </div>
 

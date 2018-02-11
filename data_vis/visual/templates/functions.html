@@ -1,4 +1,13 @@
 <script>
+  function resizeNodesByDegree(){
+    //Updating styling based on degree
+    cy.nodes().forEach(function(ele){
+      ele.style({
+        'width': 50 + 15*ele.degree(false),
+        'height': 50 + 15*ele.degree(false)
+      })
+    });
+  }
 
   function load_top_level(){
     cy.nodes().remove()
@@ -338,6 +347,8 @@
                 data: {id: node.id() + '->' + data[i]["CID"], target: data[i]['CID'], source: node.id()}
               }
             ]);
+
+            resizeNodesByDegree();
           }
 
           //Adding intermodel similarities
@@ -367,6 +378,8 @@
                 data: {id: node.id() + '->' + data[i]['CID'], target: data[i]['CID'], source: node.id()}
               }
             ]);
+
+            resizeNodesByDegree();
           }
 
           //Adding intermodel similarities
@@ -401,6 +414,8 @@
                 data: {id: node.id() +'->'+ data[i]['UMLS_CUI'] , target: data[i]['UMLS_CUI'], source: node.id()},
               }
             ]);
+
+            resizeNodesByDegree();
           };
 
           //Adding intermodel similarities
@@ -430,6 +445,8 @@
                 data: {id: node.id() +'->'+ data[i]['UMLS_CUI'] , target: data[i]['UMLS_CUI'], source: node.id()}
               }
             ]);
+
+            resizeNodesByDegree();
           };
 
           //Adding intermodel similarities
@@ -465,6 +482,8 @@
                 data: {id: node.id() +'->'+ data[i]['HGNC'] , target: data[i]['HGNC'], source: node.id(), weight:parseInt(Math.random()*30)},
               }
             ]);
+
+            resizeNodesByDegree();
           }
 
           //Adding intermodel similarities
@@ -495,6 +514,8 @@
                 style: {'visibility' : 'hidden'}
               }
             ]);
+
+            resizeNodesByDegree();
           };
 
           //Adding intermodel similarities
@@ -522,6 +543,8 @@
             classes: 'similarity'
           })
         }
+
+        resizeNodesByDegree();
       }
     });
   }
@@ -541,6 +564,8 @@
             },
             classes: 'similarity'
           })
+
+          resizeNodesByDegree();
         }
       }
     });    
@@ -551,22 +576,25 @@
       url: "api/gene_similarity/" + String(HGNC),
       success: function( data ){
         for(i in data){
-          if(data[i]['type'] == 'similarity')
-          cy.add([{
-            group: 'edges',
-            data: {
-              id: data[i]['source'] + data[i]['target'] ,
-              source: data[i]['source'],
-              target: data[i]['target'],
-              weight: data[i]['weight']
-            },
-            classes: 'similarity',
-            style:{
-              'line-style': 'dotted',
-              'line-color': 'purple'
-            },
-            classes: 'similarity'
-          }])
+          if(data[i]['type'] == 'similarity'){
+            cy.add([{
+              group: 'edges',
+              data: {
+                id: data[i]['source'] + data[i]['target'] ,
+                source: data[i]['source'],
+                target: data[i]['target'],
+                weight: data[i]['weight']
+              },
+              classes: 'similarity',
+              style:{
+                'line-style': 'dotted',
+                'line-color': 'purple'
+              },
+              classes: 'similarity'
+            }])
+
+            resizeNodesByDegree();
+          }
 
           else if(data[i]['type'] == 'interaction'){
             cy.add({
@@ -584,6 +612,8 @@
               },
               classes: 'interaction'
             });
+
+            resizeNodesByDegree();
           }
         }
       }

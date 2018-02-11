@@ -1,6 +1,12 @@
 {% include 'functions.html' %}
 
 <script>
+
+  cy.on('mouseover', 'node', function(event){
+    console.log(event.target.style('width'));
+    console.log(event.target.style('height'));
+  })
+
   cy.on('tap', 'node', function(event){
     console.log(event.target.id())
   })
