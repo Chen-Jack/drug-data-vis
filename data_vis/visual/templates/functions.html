@@ -1,4 +1,18 @@
 <script>
+
+  function applyCola(){
+    cy.layout({name:'cola', animate:true, edgeLength: function(ele){
+      let weight = ele.data('weight');
+      if(ele.hasClass('neighbor') == 1){
+        return 1000;
+      }
+      else{
+        return 500
+      }
+
+    }}).run();
+  }
+  
   function resizeNodesByDegree(){
     //Updating styling based on degree
     cy.nodes().forEach(function(ele){
@@ -344,7 +358,8 @@
               },
               {
                 group: 'edges',
-                data: {id: node.id() + '->' + data[i]["CID"], target: data[i]['CID'], source: node.id()}
+                data: {id: node.id() + '->' + data[i]["CID"], target: data[i]['CID'], source: node.id(), weight: 1},
+                classes: 'neighbor'
               }
             ]);
 
@@ -375,7 +390,8 @@
               },
               {
                 group: 'edges',
-                data: {id: node.id() + '->' + data[i]['CID'], target: data[i]['CID'], source: node.id()}
+                data: {id: node.id() + '->' + data[i]['CID'], target: data[i]['CID'], source: node.id(), weight: 1},
+                classes: 'neighbor'
               }
             ]);
 
@@ -411,7 +427,8 @@
               },
               {
                 group: 'edges',
-                data: {id: node.id() +'->'+ data[i]['UMLS_CUI'] , target: data[i]['UMLS_CUI'], source: node.id()},
+                data: {id: node.id() +'->'+ data[i]['UMLS_CUI'] , target: data[i]['UMLS_CUI'], source: node.id(), weight: 1},
+                classes: 'neighbor'
               }
             ]);
 
@@ -442,7 +459,8 @@
               },
               {
                 group: 'edges',
-                data: {id: node.id() +'->'+ data[i]['UMLS_CUI'] , target: data[i]['UMLS_CUI'], source: node.id()}
+                data: {id: node.id() +'->'+ data[i]['UMLS_CUI'] , target: data[i]['UMLS_CUI'], source: node.id(), weight: 1},
+                classes: 'neighbor'
               }
             ]);
 
@@ -479,7 +497,8 @@
               },
               {
                 group: 'edges',
-                data: {id: node.id() +'->'+ data[i]['HGNC'] , target: data[i]['HGNC'], source: node.id(), weight:parseInt(Math.random()*30)},
+                data: {id: node.id() +'->'+ data[i]['HGNC'] , target: data[i]['HGNC'], source: node.id(), weight:1},
+                classes: 'neighbor'
               }
             ]);
 
@@ -490,6 +509,8 @@
           for( i in data){
             addGeneSimilarities(data[i]['HGNC']);
           } 
+
+
         }
       });
     }
@@ -510,8 +531,8 @@
               },
               {
                 group: 'edges',
-                data: {id: node.id() +'->'+ data[i]['HGNC'] , target: data[i]['HGNC'], source: node.id()},
-                style: {'visibility' : 'hidden'}
+                data: {id: node.id() +'->'+ data[i]['HGNC'] , target: data[i]['HGNC'], source: node.id(), weight: 1},
+                classes: 'neighbor'
               }
             ]);
 
