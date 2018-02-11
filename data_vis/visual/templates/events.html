@@ -2,18 +2,18 @@
 
 <script>
 
-  cy.on('mouseover', 'node', function(event){
-    console.log(event.target.style('width'));
-    console.log(event.target.style('height'));
+  // cy.on('mouseover', 'node', function(event){
+  //   console.log(event.target.style('width'));
+  //   console.log(event.target.style('height'));
+  // })
+
+  cy.on('tap', 'edge', function(event){
+    console.log(event.target.data('weight'));
+    console.log("is neighbor edge: " + event.target.hasClass('neighbor'));
+    console.log("is similarity: " + event.target.hasClass("similarity"));
+    console.log("is interaction: " + event.target.hasClass('interaction'));
   })
 
-  cy.on('tap', 'node', function(event){
-    console.log(event.target.id())
-  })
-
-  cy.on('tap', 'edge.similarity', function(event){
-    console.log(event.target.data('weight'))
-  })
 
   cy.on('tap', 'node.chemical', function(event){ 
     cy.remove(cy.nodes().difference(event.target));

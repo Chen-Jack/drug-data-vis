@@ -67,9 +67,9 @@ cy.on('add', 'node.chemical', function(event){
   cy.on('add', 'node.gene', function(event){
     event.target.qtip({
       content: {
-        title: function(){return("[Gene]</br>Symbol: " + this.data('symbol'))},
+        title: function(){return("[Gene]</br>Symbol: " + this.data('Symbol'))},
         text: function(){
-          let str_rep = "HGNC: "+ this.id() + "</br>Chromosome: " + this.data('chromosome') +"</br>";
+          let str_rep = "HGNC: "+ this.id() + "</br>Chromosome: " + this.data('Chromosome') +"</br>";
           str_rep += "Total Assoc. Drugs: "+ this.data('total_chem') + "</br>"
           str_rep += "Total Assoc. Side Effects: "+ this.data('total_se');
           return str_rep;

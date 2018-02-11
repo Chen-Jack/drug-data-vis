@@ -3,11 +3,11 @@
   function applyCola(){
     cy.layout({name:'cola', animate:true, edgeLength: function(ele){
       let weight = ele.data('weight');
-      if(ele.hasClass('neighbor') == 1){
+      if(ele.hasClass('neighbor') == true){
         return 1000;
       }
       else{
-        return 500
+        return 500;
       }
 
     }}).run();
@@ -311,7 +311,7 @@
       success: function(data){
         cy.add({
           group: 'nodes',
-          data: {id: data['HGNC'], name: data['name'], total_chem: data['total_associated_chemicals'], total_gene: data['total_associated_genes'] },
+          data: {id: data['HGNC'], Symbol: data['Symbol'], Chromosome: data['Chromosome'], total_chem: data['total_associated_chemicals'], total_se: data['total_associated_side_effects'] },
           classes: 'gene'
         })
         HGNC = data['HGNC']
@@ -561,7 +561,11 @@
               target: data[i]['target'],
               weight: data[i]['weight']
             },
-            classes: 'similarity'
+            classes: 'similarity',
+            style:{
+              'line-style': 'dotted',
+              'line-color': '#75a0e5'
+            }
           })
         }
 
@@ -608,7 +612,7 @@
               },
               classes: 'similarity',
               style:{
-                'line-style': 'dotted',
+                'line-style': 'dashed',
                 'line-color': 'purple'
               },
               classes: 'similarity'
