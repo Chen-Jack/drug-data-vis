@@ -9,14 +9,17 @@
       else{
         return 500;
       }
-
     }}).run();
+ 
   }
   
   function resizeNodesByDegree(){
     //Updating styling based on degree
     cy.nodes().forEach(function(ele){
       let new_dim = 50 + 15 * ele.degree(false);
+      if(new_dim >= 500){
+        return;
+      }
       ele.style({
         'width': new_dim,
         'height': new_dim,
@@ -213,6 +216,7 @@
     if (type == "chem"){
       $.ajax({
         url: 'api/exists/chemical/' + query_name,
+        async: false,
         success: function(data){
           if(data['exists'] == true){
             cy.remove(cy.nodes()); //Clear the screen
@@ -225,6 +229,7 @@
     else if(type == "gene"){
       $.ajax({
         url: 'api/exists/gene/' + query_name,
+        async: false,
         success: function(data){
           if(data['exists'] == true){
             cy.remove(cy.nodes()); //Clear the screen
@@ -238,6 +243,7 @@
     else if(type == "side_effect"){
       $.ajax({
         url: 'api/exists/side_effect/' + query_name,
+        async: false,
         success: function(data){
           if(data['exists'] == true){
             cy.remove(cy.nodes()); //Clear the screen
@@ -277,6 +283,8 @@
       addNeighboringChemicals(node, 'side_effect');
       addNeighboringGenes(node, 'side_effect');
     }   
+
+    applyCola();
   }   //End of addNeighbors(node,type)
 
   function addChemical(query_name){
@@ -366,6 +374,7 @@
     if(type == "gene"){
       $.ajax({
         url: 'api/associated_chemicals/gene/'+node.id(),
+        async: false,
         success: function(data){
           for(i in data){
             //Add to side bar
@@ -406,6 +415,7 @@
     else if(type == "side_effect"){
       $.ajax({
         url: 'api/associated_chemicals/side_effect/'+node.id(),
+        async: false,
         success: function(data){
           for(i in data){
             
@@ -450,6 +460,7 @@
     if(type == 'chem'){
       $.ajax({
         url: 'api/associated_side_effects/chemical/'+node.id(),
+        async: false,
         success: function(data){
           for(i in data){
             
@@ -489,6 +500,7 @@
     else if(type == "gene"){
       $.ajax({
         url: 'api/associated_side_effects/gene/'+node.id(),
+        async: false,
         success: function(data){
           for(i in data){
 
@@ -534,6 +546,7 @@
     if(type == "chem"){
       $.ajax({
         url: 'api/associated_genes/chemical/'+node.id(),
+        async: false,
         success: function(data){
           for(i in data){
 
@@ -574,6 +587,7 @@
     else if(type == "side_effect"){
       $.ajax({
         url: 'api/associated_genes/side_effect/'+node.id(),
+        async: false,
         success: function(data){
           for(i in data){
 
@@ -615,6 +629,7 @@
   function addChemicalSimilarities(CID){
     $.ajax({
       url: "api/chemical_similarity/" + String(CID),
+      async: false,
       success: function( data ){
         for(i in data){
           cy.add({
@@ -642,6 +657,7 @@
   function addSESimilarities(UMLS_CUI){
     $.ajax({
       url: "api/side_effect_similarity/" + String(UMLS_CUI),
+      async: false,
       success: function( data ){
         for(i in data){
           cy.add({
@@ -664,6 +680,7 @@
   function addGeneSimilarities(HGNC){
     $.ajax({
       url: "api/gene_similarity/" + String(HGNC),
+      async: false,
       success: function( data ){
         for(i in data){
           if(data[i]['type'] == 'similarity'){
