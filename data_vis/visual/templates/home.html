@@ -45,6 +45,7 @@
         <button class="btn btn-primary" style="border-radius: 0" onclick="load_top_level()">Top View</button>
         <button class="btn btn-info" style="border-radius: 0" onclick="cy.fit()">See All</button>
         <button class="btn btn-default" style="border-radius: 0" onclick="applyCola()">Cola</button>
+        <button class="btn btn-danger" style="border-radius: 0" onclick="recycleInstance()">Release Resources</button>
       </div>
       
     </br></br>
@@ -138,39 +139,8 @@
   <!-- Bulk Cytoscape Code -->
   <script >
     //Cytoscape Initalization
-    var cy = cytoscape({
-      container: document.getElementById('cy'),
-      style: [
-        {
-          selector: 'node.chemical',
-          style:{
-            'background-color': '#00A',
-            'shape': 'ellipse',
-          },
-        },
-        {
-          selector: 'node.side_effect',
-          style:{
-            'background-color': '#0A0',
-            'shape': 'ellipse',
-          },
-        },
-        {
-          selector: 'node.gene',
-          style:{
-            'background-color': '#A00',
-            'shape': 'ellipse',
-          }
-        },
-      ],
-      layout:{
-        name: 'null'
-      },
-        
-    }); //End of cyto initalization
 
-    //Cytoscape Extensions--------
-    cy.panzoom();
+    var cy = initCyto();
 
   </script>
     

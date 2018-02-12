@@ -2,11 +2,6 @@
 
 <script>
 
-  cy.on('mouseover', 'node', function(event){
-    console.log(event.target.style('width'))
-    console.log(event.target.style('font-size'))
-  })
-
   cy.on('tap', 'edge', function(event){
     console.log(event.target.data('weight'));
     console.log("is neighbor edge: " + event.target.hasClass('neighbor'));
@@ -20,10 +15,10 @@
     addNeighbors(event.target, 'chemical');
   });
   
-  // cy.on('tap', 'node.side_effect', function(event){  
-  //   cy.remove(cy.nodes().difference(event.target));
-  //   addNeighbors(event.target, 'side_effect');
-  // });
+  cy.on('tap', 'node.side_effect', function(event){  
+    cy.remove(cy.nodes().difference(event.target));
+    addNeighbors(event.target, 'side_effect');
+  });
 
   cy.on('tap', 'node.gene', function(event){  
     cy.remove(cy.nodes().difference(event.target));

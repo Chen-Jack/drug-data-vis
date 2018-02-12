@@ -1,13 +1,46 @@
 <script>
 
+  function initCyto(){
+    return cytoscape({
+    container: document.getElementById('cy'),
+    style: [
+      {
+        selector: 'node.chemical',
+        style:{
+          'background-color': '#00A',
+          'shape': 'ellipse',
+        },
+      },
+      {
+        selector: 'node.side_effect',
+        style:{
+          'background-color': '#0A0',
+          'shape': 'ellipse',
+        },
+      },
+      {
+        selector: 'node.gene',
+        style:{
+          'background-color': '#A00',
+          'shape': 'ellipse',
+        }
+      },
+    ]});
+  }
+
+  function recycleInstance(){
+    cy.destroy();
+    cy = initCyto();
+  }
+
   function applyCola(){
     cy.layout({name:'cola', infinite: true, fit: false, animate:true, randomize: false, nodeDimensionsIncludeLabels: true, edgeLength: function(ele){
       let weight = ele.data('weight');
       if(ele.hasClass('neighbor') == true){
-        return 1000;
+        return 1500;
       }
       else{
-        return 500;
+        return 1000 - weight * 100;
       }
     }}).run();
  
@@ -16,7 +49,7 @@
   function resizeNodesByDegree(){
     //Updating styling based on degree
     cy.nodes().forEach(function(ele){
-      let new_dim = 50 + 15 * ele.degree(false);
+      let new_dim = 50 + 25 * ele.degree(false);
       if(new_dim >= 500){
         return;
       }
@@ -29,7 +62,7 @@
   }
 
   function load_top_level(){
-    cy.nodes().remove()
+    recycleInstance();
     cy.add([
       {
         group: 'nodes',
@@ -219,6 +252,7 @@
         async: false,
         success: function(data){
           if(data['exists'] == true){
+            // cy.destroy();
             cy.remove(cy.nodes()); //Clear the screen
             let node = addChemical(query_name);
             addNeighbors(node, 'chemical');
@@ -232,6 +266,7 @@
         async: false,
         success: function(data){
           if(data['exists'] == true){
+            // cy.destroy();
             cy.remove(cy.nodes()); //Clear the screen
             let node = addGene(query_name);
             console.log(node.id())
@@ -246,6 +281,7 @@
         async: false,
         success: function(data){
           if(data['exists'] == true){
+            // cy.destroy();
             cy.remove(cy.nodes()); //Clear the screen
             let node = addSideEffect(query_name);
             addNeighbors(node, 'side_effect')
@@ -642,7 +678,7 @@
             },
             classes: 'similarity',
             style:{
-              'width': 10 * data[i]['weight'],
+              'width': 50 * data[i]['weight'],
               'line-style': 'dashed',
               'line-color': '#75a0e5'
             }
@@ -694,7 +730,7 @@
               },
               classes: 'similarity',
               style:{
-                'width': 10 * data[i]['weight'],
+                'width': 20 * data[i]['weight'],
                 'line-style': 'dashed',
                 'line-color': 'purple'
               },
@@ -715,7 +751,7 @@
               },
               classes: 'interaction',
               style: {
-                'width': 10 * data[i]['weight'],
+                'width': 20 * data[i]['weight'],
                 'line-style': 'dashed',
                 'line-color' : "black"
               },
