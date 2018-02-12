@@ -41,14 +41,10 @@
 <body style="background-color:rgb(243, 243, 243)">
     <div class="container-fluid" style="z-index: 30; position: relative; box-shadow: 0px 1px 5px rgba(0, 0, 0, .5); background-color: rgb(235, 233, 233)">
       <h2 style="display: inline-block"> [Drug/Side-Effect/Gene]  Visualization</h2> 
-      <button class="btn btn-default" onclick="cy.layout({name:'grid', animate:true}).run()">Grid Layout</button>
-      <button class="btn btn-default" onclick="cy.layout({name:'cose', idealEdgeLength: function(edge){return 32}, animate:'end'}).run()">Testing Cose</button>
-      <button class="btn btn-info" style="border-radius: 0" onclick="cy.reset()">Reset View</button>
-      <button onclick="addChemicalSimilarities()">Add test node</button>
-      <button onclick="applyCola()">Test Cola</button>
+      <!-- <button class="btn btn-default" onclick="cy.layout({name:'grid', animate:true}).run()">Grid Layout</button> -->
+      <button class="btn btn-info" style="border-radius: 0" onclick="load_top_level()">Top View</button>
+      <button onclick="applyCola()">Cola</button>
       <button onclick="cy.layout({name: 'cose-bilkent'}).run()">Biklent</button>
-      <button onclick="resizeNodesByDegree()">A</button>
-      <button onclick="console.log(cy.node.side_effect.length)">B</button>
       
     </br></br>
     </div>
@@ -155,14 +151,14 @@
           selector: 'node.side_effect',
           style:{
             'background-color': '#0A0',
-            'shape': 'diamond',
+            'shape': 'ellipse',
           },
         },
         {
           selector: 'node.gene',
           style:{
             'background-color': '#A00',
-            'shape': 'triangle',
+            'shape': 'ellipse',
           }
         },
       ],

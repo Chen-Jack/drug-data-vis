@@ -1,7 +1,7 @@
 <script>
 
   function applyCola(){
-    cy.layout({name:'cola', animate:true, nodeDimensionsIncludeLabels: true, edgeLength: function(ele){
+    cy.layout({name:'cola', infinite: true, fit: false, animate:true, randomize: false, nodeDimensionsIncludeLabels: true, edgeLength: function(ele){
       let weight = ele.data('weight');
       if(ele.hasClass('neighbor') == true){
         return 1000;
@@ -20,7 +20,7 @@
       ele.style({
         'width': new_dim,
         'height': new_dim,
-        'font-size': '100%',
+        'font-size': 0.75 * new_dim,
       });
     });
   }
@@ -35,6 +35,7 @@
         },
         style:{
           'label': "Chemical",
+          'font-size': 0.5 * 150,
           "text-valign" : "center",
           'shape': 'ellipse',
           'background-color':'blue',
@@ -50,6 +51,7 @@
         },
         style:{
           'label': "Genes",
+          'font-size': 0.5 * 1500,
           "text-valign" : "center",
           'shape': 'ellipse',
           'background-color': 'red',
@@ -65,6 +67,7 @@
         },
         style:{
           'label': "Side Effects",
+          'font-size': 0.5 * 400,
           "text-valign" : "center",
           'shape': 'ellipse',
           'background-color': 'green',
@@ -99,8 +102,6 @@
       }
     ]);
 
-
-    cy.startBatch();
     for( let i =0; i< 1549/1000; i++){
       cy.add([
         {
@@ -135,11 +136,10 @@
       ])
     }
 
-    cy.endBatch();
-
     cy.layout({name:'cose', animate: 'end'}).run();
 
     cy.getElementById('chemical').qtip({
+      // id: 'a',
       content: {
           title: "Search for Drug",
           text: '<input type="radio" checked> CID </br> <input type="text" id="top_level_search"><button onclick="topLevelSearch(\'chem\')">Search</button>'
@@ -149,11 +149,11 @@
           at: 'center',
           target: $(document.body)
       },
-      show: {
-        modal: {
-          on: true
-        }
-      },
+      // show: {
+      //   modal: {
+      //     on: true
+      //   }
+      // },
       style: {
         classes: 'qtip-bootstrap'
       }
@@ -168,11 +168,11 @@
           at: 'center',
           target: $(document.body)
       },
-      show: {
-        modal: {
-          on: true
-        }
-      },
+      // show: {
+      //   modal: {
+      //     on: true
+      //   }
+      // },
       style: {
         classes: 'qtip-bootstrap'
       }
@@ -188,11 +188,11 @@
           at: 'center',
           target: $(document.body)
       },
-      show: {
-        modal: {
-          on: true
-        }
-      },
+      // show: {
+      //   modal: {
+      //     on: true
+      //   }
+      // },
       style: {
         classes: 'qtip-bootstrap'
       }
@@ -203,6 +203,8 @@
   function topLevelSearch(type){
     /*Entry point for searching a particular node from the main level*/
     let query_name = document.getElementById("top_level_search").value;
+    console.log(cy.getElementById('chemical').style('width'))
+    $(".qtip").qtip('destroy', true);
     searchNode(query_name, type) 
 
   } //End of topLevelSearch(type)
@@ -625,7 +627,8 @@
             },
             classes: 'similarity',
             style:{
-              'line-style': 'dotted',
+              'width': 10 * data[i]['weight'],
+              'line-style': 'dashed',
               'line-color': '#75a0e5'
             }
           })
@@ -674,6 +677,7 @@
               },
               classes: 'similarity',
               style:{
+                'width': 10 * data[i]['weight'],
                 'line-style': 'dashed',
                 'line-color': 'purple'
               },
@@ -694,7 +698,8 @@
               },
               classes: 'interaction',
               style: {
-                'line-style': 'solid',
+                'width': 10 * data[i]['weight'],
+                'line-style': 'dashed',
                 'line-color' : "black"
               },
               classes: 'interaction'
